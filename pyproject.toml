@@ -1,0 +1,18 @@
+########
+# Pylint
+########
+[tool.pylint.messages_control]
+disable=[
+  "invalid-name",
+  "missing-module-docstring",
+  "too-few-public-methods",
+  "too-many-arguments",
+  "unsubscriptable-object",
+]
+
+[tool.pylint.reports]
+reports="no"
+output-format="colorized"
+
+[tool.pylint.format]
+max-line-length="88"
