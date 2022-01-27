@@ -6,17 +6,13 @@ from fastapi.security import HTTPBasic
 from sqlalchemy.orm import Session
 
 import oauth.api.endpoints as endpoints
-from oauth.api.exceptions import (
-    AuthenticationException,
-    ClientNotFoundException,
-    InvalidScopeException,
-)
+from oauth.api.exceptions import AuthenticationException, ClientNotFoundException
 from oauth.api.models import (
     AccessToken,
     ClientCreatedResponse,
     OAuth2ClientCredentialsRequestForm,
 )
-from oauth.api.utils import verify_oauth_client
+from oauth.api.utils import validate_scopes, verify_oauth_client
 from oauth.database.models import ClientDetail
 from oauth.scopes import (
     CLIENT_CREATE,
@@ -53,7 +49,6 @@ async def acquire_access_token(
         raise AuthenticationException()
 
     client_detail = ClientDetail.get(db, client_id=client_id)
-
     if client_detail is None:
         raise AuthenticationException()
 
@@ -79,9 +74,7 @@ def create_client(
     Creates a new client and returns the credentials.
     """
 
-    for scope in scopes:
-        if not scope in SCOPES:
-            raise InvalidScopeException(scope)
+    validate_scopes(scopes)
 
     client, secret = ClientDetail.create_client_and_secret(db, scopes)
     logger.info("Created new client with ID '%s'", client.id)
@@ -142,9 +135,7 @@ def set_client_scopes(
     if not client:
         raise ClientNotFoundException(client_id)
 
-    for scope in scopes:
-        if not scope in SCOPES:
-            raise InvalidScopeException(scope)
+    validate_scopes(scopes)
 
     logger.info(
         "Updating permissions for client with ID '%s' to: [%s]",

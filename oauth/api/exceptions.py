@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException, status
 
 from oauth.scopes import SCOPES
@@ -75,12 +77,12 @@ class InvalidScopeException(HTTPException):
     To be raised when a provided scope does not exist.
     """
 
-    def __init__(self, scope: str) -> None:
+    def __init__(self, invalid_scopes: List[str]) -> None:
         super().__init__(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={
                 "error": "Invalid scope provided",
-                "scope": scope,
+                "invalid_scopes": invalid_scopes,
                 "valid_scopes": SCOPES.sort(),
             },
         )

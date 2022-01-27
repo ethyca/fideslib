@@ -1,5 +1,6 @@
 from datetime import datetime
 from json import loads as load
+from typing import List
 
 from fastapi import Security
 from fastapi.security import SecurityScopes
@@ -12,11 +13,12 @@ from oauth.api.exceptions import (
     AuthenticationException,
     AuthorizationException,
     ExpiredTokenException,
+    InvalidScopeException,
 )
 from oauth.api.models import OAuth2ClientCredentialsBearer
 from oauth.database.models import ClientDetail
 import oauth.jwt as jwt
-from oauth.scopes import SCOPE_DOCS
+from oauth.scopes import SCOPE_DOCS, SCOPES
 
 oauth2_scheme = OAuth2ClientCredentialsBearer(tokenUrl=TOKEN, scopes=SCOPE_DOCS)
 
@@ -92,3 +94,14 @@ def generate_jwe(payload: str, encryption_key: str, encoding: str) -> str:
         encryption_key,
         encryption=ALGORITHMS.A256GCM,
     ).decode(encoding)
+
+
+def validate_scopes(scopes: List[str]) -> None:
+    """
+    Raises an InvalidScopeException if any of the provided scopes
+    are invalid.
+    """
+
+    invalid_scopes = [scope for scope in scopes if scope not in SCOPES]
+    if len(invalid_scopes) > 0:
+        raise InvalidScopeException(invalid_scopes)
