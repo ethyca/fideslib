@@ -85,6 +85,8 @@ def create_client(
 @router.delete(
     endpoints.CLIENT_BY_ID,
     dependencies=[Security(verify_oauth_client, scopes=[CLIENT_DELETE])],
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_client(client_id: str, db: Session = Depends()) -> None:
     """
@@ -92,11 +94,9 @@ def delete_client(client_id: str, db: Session = Depends()) -> None:
     """
 
     client = ClientDetail.get(db, client_id=client_id)
-    if not client:
-        raise ClientNotFoundException(client_id)
-
-    logger.info("Deleting client with ID '%s'", client_id)
-    client.delete(db)
+    if client is not None:
+        logger.info("Deleting client with ID '%s'", client_id)
+        client.delete(db)
 
 
 @router.get(
@@ -111,10 +111,7 @@ def get_client_scopes(client_id: str, db: Session = Depends()) -> List[str]:
 
     logger.info("Fetching current permissions for client with ID '%s'", client_id)
     client = ClientDetail.get(db, client_id=client_id)
-    if not client:
-        raise ClientNotFoundException(client_id)
-
-    return client.scopes
+    return client.scopes if client is not None else []
 
 
 @router.put(
