@@ -21,17 +21,20 @@ from oauth.api.exceptions import (
 from oauth.api.models import (
     AccessToken,
     ClientCreatedResponse,
-    OAuth2ClientCredentialsBearer,
     OAuth2ClientCredentialsRequestForm,
 )
-from oauth.api.utils import extract_payload, is_token_expired, validate_scopes
+from oauth.api.utils import (
+    extract_payload,
+    is_token_expired,
+    oauth2_scheme,
+    validate_scopes,
+)
 from oauth.database.models import ClientDetail
 from oauth.scopes import (
     CLIENT_CREATE,
     CLIENT_DELETE,
     CLIENT_READ,
     CLIENT_UPDATE,
-    SCOPE_DOCS,
     SCOPE_READ,
     SCOPES,
 )
@@ -40,10 +43,6 @@ EIGHT_DAYS = 60 * 24 * 8  # Expressed in minutes
 SORTED_SCOPES = SCOPES.sort()
 
 logger = getLogger(__name__)
-oauth2_scheme = OAuth2ClientCredentialsBearer(
-    tokenUrl=endpoints.TOKEN,
-    scopes=SCOPE_DOCS,
-)
 
 
 class OAuthRouter(APIRouter):

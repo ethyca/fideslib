@@ -5,7 +5,11 @@ from jose import jwe
 from jose.constants import ALGORITHMS
 
 from oauth.api.exceptions import InvalidScopeException
-from oauth.scopes import SCOPES
+from oauth.api.endpoints import TOKEN
+from oauth.api.models import OAuth2ClientCredentialsBearer
+from oauth.scopes import SCOPES, SCOPE_DOCS
+
+oauth2_scheme = OAuth2ClientCredentialsBearer(tokenUrl=TOKEN, scopes=SCOPE_DOCS)
 
 
 def extract_payload(jwe_string: str, encryption_key: str) -> str:
