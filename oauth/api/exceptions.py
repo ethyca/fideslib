@@ -31,6 +31,18 @@ class AuthorizationException(HTTPException):
         )
 
 
+class ClientWriteFailedException(HTTPException):
+    """
+    To be raised when a client cannot be created.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Failed to create client",
+        )
+
+
 class ClientNotFoundException(HTTPException):
     """
     To be raised when attempting to fetch a client that does not exist.

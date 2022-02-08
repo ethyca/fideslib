@@ -3,11 +3,12 @@
 from datetime import datetime
 from json import loads as load
 from logging import getLogger
-from typing import Any, Callable, Generator, List, Optional
+from typing import Any, Callable, Generator, List, Optional, Tuple
 
 from fastapi import APIRouter, Body, Depends, Request, Security, status
 from fastapi.routing import APIRoute
 from fastapi.security import HTTPBasic, SecurityScopes
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 import oauth.api.endpoints as endpoints
@@ -15,6 +16,7 @@ import oauth.jwt as jwt
 from oauth.api.exceptions import (
     AuthenticationException,
     AuthorizationException,
+    ClientWriteFailedException,
     ClientNotFoundException,
     ExpiredTokenException,
 )
@@ -29,7 +31,7 @@ from oauth.api.utils import (
     oauth2_scheme,
     validate_scopes,
 )
-from oauth.database.models import ClientDetail
+from oauth.database.client_detail_model import ClientDetail
 from oauth.scopes import (
     CLIENT_CREATE,
     CLIENT_DELETE,
@@ -55,17 +57,27 @@ class OAuthRouter(APIRouter):
         self,
         app_encryption_key: str,
         db: Callable[[], Generator[Session, None, None]],
+        oauth_root_client_id: str,
+        oauth_root_client_secret_hash: Tuple[str, bytes],
         *,
+        encoding: str = "utf-8",
         oauth_access_token_expire_min: int = EIGHT_DAYS,
+        oauth_client_id_bytelength: int = 16,
+        oauth_client_secret_bytelength: int = 16,
         prefix: str = endpoints.OAUTH_PREFIX,
         tags: Optional[List[str]] = None,
     ) -> None:
         if tags is None:
             tags = ["OAuth"]
 
-        self.db_func = db
-        self.encryption_key = app_encryption_key
         self.access_token_expire_min = oauth_access_token_expire_min
+        self.client_id_bytelength = oauth_client_id_bytelength
+        self.client_secret_bytelength = oauth_client_secret_bytelength
+        self.db_func = db
+        self.encoding = encoding
+        self.encryption_key = app_encryption_key
+        self.root_client_id = oauth_root_client_id
+        self.root_client_secret_hash = oauth_root_client_secret_hash
 
         super().__init__(
             prefix=prefix,
@@ -173,15 +185,26 @@ class OAuthRouter(APIRouter):
             else:
                 raise AuthenticationException()
 
-            client_detail = ClientDetail.get(db, client_id=client_id)
+            client_detail = ClientDetail.get(
+                db,
+                client_id=client_id,
+                encoding=self.encoding,
+                root_client_id=self.root_client_id,
+                root_client_secret_hash=self.root_client_secret_hash,
+            )
             if client_detail is None:
                 raise AuthenticationException()
 
-            if not client_detail.credentials_valid(client_secret):
+            if not client_detail.credentials_valid(client_secret, self.encoding):
                 raise AuthenticationException()
 
             logger.info("Creating access token for client with ID '%s'", client_id)
-            return AccessToken(access_token=client_detail.create_access_code_jwe())
+            return AccessToken(
+                access_token=client_detail.create_access_code_jwe(
+                    self.encryption_key,
+                    self.encoding,
+                )
+            )
 
         return acquire_access_token
 
@@ -201,8 +224,18 @@ class OAuthRouter(APIRouter):
         ) -> ClientCreatedResponse:
             validate_scopes(scopes)
 
-            client, secret = ClientDetail.create_client_and_secret(db, scopes)
-            logger.info("Created new client with ID '%s'", client.id)
+            try:
+                client, secret = ClientDetail.create_client_and_secret(
+                    self.client_id_bytelength,
+                    self.client_secret_bytelength,
+                    db,
+                    self.encoding,
+                    scopes,
+                )
+                logger.info("Created new client with ID '%s'", client.id)
+            except SQLAlchemyError as e:
+                logger.error("Failed to create client", exc_info=True, stack_info=True)
+                raise ClientWriteFailedException() from e
 
             return ClientCreatedResponse(client_id=client.id, client_secret=secret)
 
@@ -222,7 +255,13 @@ class OAuthRouter(APIRouter):
             client_id: str,
             db: Session = Depends(self.db_func),
         ) -> None:
-            client = ClientDetail.get(db, client_id=client_id)
+            client = ClientDetail.get(
+                db,
+                client_id=client_id,
+                encoding=self.encoding,
+                root_client_id=self.root_client_id,
+                root_client_secret_hash=self.root_client_secret_hash,
+            )
             if client is not None:
                 logger.info("Deleting client with ID '%s'", client_id)
                 client.delete(db)
@@ -246,7 +285,13 @@ class OAuthRouter(APIRouter):
             logger.info(
                 "Fetching current permissions for client with ID '%s'", client_id
             )
-            client = ClientDetail.get(db, client_id=client_id)
+            client = ClientDetail.get(
+                db,
+                client_id=client_id,
+                encoding=self.encoding,
+                root_client_id=self.root_client_id,
+                root_client_secret_hash=self.root_client_secret_hash,
+            )
             return client.scopes if client is not None else []
 
         return get_client_scopes
@@ -274,18 +319,32 @@ class OAuthRouter(APIRouter):
             scopes: List[str],
             db: Session = Depends(self.db_func),
         ) -> None:
-            client = ClientDetail.get(db, client_id=client_id)
+            client = ClientDetail.get(
+                db,
+                client_id=client_id,
+                encoding=self.encoding,
+                root_client_id=self.root_client_id,
+                root_client_secret_hash=self.root_client_secret_hash,
+            )
             if not client:
                 raise ClientNotFoundException(client_id)
 
             validate_scopes(scopes)
 
-            logger.info(
-                "Updating permissions for client with ID '%s' to: [%s]",
-                client_id,
-                ", ".join(scopes.sort()),
-            )
-            client.update(db, data={"scopes": scopes})
+            try:
+                client.update(db, data={"scopes": scopes})
+                logger.info(
+                    "Updated permissions for client with ID '%s' to: [%s]",
+                    client_id,
+                    ", ".join(scopes.sort()),
+                )
+            except SQLAlchemyError as e:
+                logger.error(
+                    "Failed to update client permissions",
+                    exc_info=True,
+                    stack_info=True,
+                )
+                raise ClientWriteFailedException() from e
 
         return set_client_scopes
 
@@ -329,7 +388,13 @@ class OAuthRouter(APIRouter):
             if not client_id:
                 raise AuthorizationException()
 
-            client = ClientDetail.get(db, client_id=client_id)
+            client = ClientDetail.get(
+                db,
+                client_id=client_id,
+                encoding=self.encoding,
+                root_client_id=self.root_client_id,
+                root_client_secret_hash=self.root_client_secret_hash,
+            )
             if not client:
                 raise AuthorizationException()
 
