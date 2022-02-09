@@ -1,3 +1,7 @@
+"""
+The endpoint URL paths exposed by an OAuthRouter instance.
+"""
+
 OAUTH_PREFIX = "/oauth"
 
 CLIENT = f"{OAUTH_PREFIX}/client"
