@@ -19,4 +19,4 @@ SCOPE_DOCS = {
     SCOPE_READ: "View authorization scopes",
 }
 
-SCOPES = SCOPE_DOCS.keys()
+SCOPES = list(SCOPE_DOCS.keys())
