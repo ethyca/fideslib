@@ -6,7 +6,6 @@ from logging import getLogger
 from typing import Any, Callable, Generator, List, Optional, Tuple
 
 from fastapi import APIRouter, Body, Depends, Request, Security, status
-from fastapi.routing import APIRoute
 from fastapi.security import HTTPBasic, SecurityScopes
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -79,87 +78,69 @@ class OAuthRouter(APIRouter):
         self.root_client_id = oauth_root_client_id
         self.root_client_secret_hash = oauth_root_client_secret_hash
 
-        super().__init__(
-            prefix=prefix,
-            tags=tags,
-            routes=[
-                APIRoute(
-                    endpoints.TOKEN,
-                    self._acquire_access_token(),
-                    methods=["POST"],
-                    response_model=AccessToken,
-                    summary="Retrieve an access token",
-                ),
-                APIRoute(
-                    endpoints.CLIENT,
-                    self._create_client(),
-                    dependencies=[
-                        Security(
-                            self._verify_oauth_client(),
-                            scopes=[CLIENT_CREATE],
-                        ),
-                    ],
-                    methods=["POST"],
-                    response_model=ClientCreatedResponse,
-                    status_code=status.HTTP_201_CREATED,
-                    summary="Create a new client",
-                ),
-                APIRoute(
-                    endpoints.CLIENT_BY_ID,
-                    self._delete_client(),
-                    dependencies=[
-                        Security(
-                            self._verify_oauth_client(),
-                            scopes=[CLIENT_DELETE],
-                        ),
-                    ],
-                    methods=["DELETE"],
-                    response_model=None,  # Explicitly defined, to prevent overwriting
-                    status_code=status.HTTP_204_NO_CONTENT,
-                    summary="Delete a client",
-                ),
-                APIRoute(
-                    endpoints.CLIENT_SCOPE,
-                    self._get_client_scopes(),
-                    dependencies=[
-                        Security(
-                            self._verify_oauth_client(),
-                            scopes=[CLIENT_READ],
-                        ),
-                    ],
-                    methods=["GET"],
-                    response_model=List[str],
-                    summary="Retrieve the current scopes for a client",
-                ),
-                APIRoute(
-                    endpoints.CLIENT_SCOPE,
-                    self._set_client_scopes(),
-                    dependencies=[
-                        Security(
-                            self._verify_oauth_client(),
-                            scopes=[CLIENT_UPDATE],
-                        ),
-                    ],
-                    methods=["PUT"],
-                    summary="Overwrite the scopes for an existing client",
-                ),
-                APIRoute(
-                    endpoints.SCOPE,
-                    self.read_scopes(),
-                    dependencies=[
-                        Security(
-                            self._verify_oauth_client(),
-                            scopes=[SCOPE_READ],
-                        ),
-                    ],
-                    methods=["GET"],
-                    response_model=List[str],
-                    summary="Retrieve all available scopes",
-                ),
-            ],
+        super().__init__(prefix=prefix, tags=tags)
+
+        self.add_api_route(
+            endpoints.TOKEN,
+            self._acquire_access_token(),
+            methods=["POST"],
+            response_model=AccessToken,
+            summary="Retrieve an access token",
         )
 
-    async def _acquire_access_token(
+        self.add_api_route(
+            endpoints.CLIENT,
+            self._create_client(),
+            dependencies=[
+                Security(self._verify_oauth_client(), scopes=[CLIENT_CREATE]),
+            ],
+            methods=["POST"],
+            response_model=ClientCreatedResponse,
+            status_code=status.HTTP_201_CREATED,
+            summary="Create a new client",
+        )
+
+        self.add_api_route(
+            endpoints.CLIENT_BY_ID,
+            self._delete_client(),
+            dependencies=[
+                Security(self._verify_oauth_client(), scopes=[CLIENT_DELETE]),
+            ],
+            methods=["DELETE"],
+            response_model=None,  # Explicitly defined, to prevent overwriting
+            status_code=status.HTTP_204_NO_CONTENT,
+            summary="Delete a client",
+        )
+
+        self.add_api_route(
+            endpoints.CLIENT_SCOPE,
+            self._get_client_scopes(),
+            dependencies=[Security(self._verify_oauth_client(), scopes=[CLIENT_READ])],
+            methods=["GET"],
+            response_model=List[str],
+            summary="Retrieve the current scopes for a client",
+        )
+
+        self.add_api_route(
+            endpoints.CLIENT_SCOPE,
+            self._set_client_scopes(),
+            dependencies=[
+                Security(self._verify_oauth_client(), scopes=[CLIENT_UPDATE]),
+            ],
+            methods=["PUT"],
+            summary="Overwrite the scopes for an existing client",
+        )
+
+        self.add_api_route(
+            endpoints.SCOPE,
+            self.read_scopes,
+            dependencies=[Security(self._verify_oauth_client(), scopes=[SCOPE_READ])],
+            methods=["GET"],
+            response_model=List[str],
+            summary="Retrieve all available scopes",
+        )
+
+    def _acquire_access_token(
         self,
         *args: Any,
         **kwargs: Any,
@@ -348,7 +329,7 @@ class OAuthRouter(APIRouter):
 
         return set_client_scopes
 
-    async def _verify_oauth_client(
+    def _verify_oauth_client(
         self,
         *args: Any,
         **kwargs: Any,
