@@ -78,7 +78,7 @@ class OAuth2ClientCredentialsBearer(OAuth2):
         if scheme.lower() != "bearer":
             if self.auto_error:
                 raise InvalidAuthorizationSchemeException()
-            return
+
         return param
 
 

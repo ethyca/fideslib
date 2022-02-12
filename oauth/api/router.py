@@ -3,7 +3,7 @@
 from datetime import datetime
 from json import loads as load
 from logging import getLogger
-from typing import Any, Callable, Generator, List, Optional, Tuple
+from typing import Any, Callable, Coroutine, Generator, List, Optional, Tuple
 
 from fastapi import APIRouter, Body, Depends, Request, Security, status
 from fastapi.security import HTTPBasic, SecurityScopes
@@ -41,7 +41,7 @@ from oauth.scopes import (
 )
 
 EIGHT_DAYS = 60 * 24 * 8  # Expressed in minutes
-SORTED_SCOPES = SCOPES.sort()
+
 
 logger = getLogger(__name__)
 
@@ -144,7 +144,7 @@ class OAuthRouter(APIRouter):
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Callable[..., AccessToken]:
+    ) -> Callable[..., Coroutine[Any, Any, AccessToken]]:
         """
         Given a set of credentials, returns an access token.
         """
@@ -283,7 +283,8 @@ class OAuthRouter(APIRouter):
         Returns a list of all scopes available for assignment.
         """
 
-        return SORTED_SCOPES
+        SCOPES.sort()
+        return SCOPES
 
     def _set_client_scopes(
         self,
@@ -314,10 +315,11 @@ class OAuthRouter(APIRouter):
 
             try:
                 client.update(db, data={"scopes": scopes})
+                scopes.sort()
                 logger.info(
                     "Updated permissions for client with ID '%s' to: [%s]",
                     client_id,
-                    ", ".join(scopes.sort()),
+                    ", ".join(scopes),
                 )
             except SQLAlchemyError as e:
                 logger.error(
@@ -333,7 +335,7 @@ class OAuthRouter(APIRouter):
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Callable[..., ClientDetail]:
+    ) -> Callable[..., Coroutine[Any, Any, ClientDetail]]:
         """
         Verifies that the access token provided in the authorization header
         contains the necessary scopes specified by the caller.
