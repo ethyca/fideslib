@@ -89,4 +89,5 @@ def test_invalid_scope_exception():
 
     # Includes a sorted reference of valid scopes
     assert "valid_scopes" in exception.detail
-    assert exception.detail["valid_scopes"] == SCOPES.sort()
+    SCOPES.sort()
+    assert exception.detail["valid_scopes"] == SCOPES

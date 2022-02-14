@@ -90,11 +90,13 @@ class InvalidScopeException(HTTPException):
     """
 
     def __init__(self, invalid_scopes: List[str]) -> None:
+        SCOPES.sort()
+
         super().__init__(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={
                 "error": "Invalid scope provided",
                 "invalid_scopes": invalid_scopes,
-                "valid_scopes": SCOPES.sort(),
+                "valid_scopes": SCOPES,
             },
         )
