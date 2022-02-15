@@ -19,7 +19,7 @@ RUN pip install -U pip
 COPY dev-requirements.txt dev-requirements.txt
 RUN pip install -r dev-requirements.txt
 
-# Copy in the application files and install fidesctl locally
+# Copy in the application files and install fidescls locally
 COPY . /fideslib
 WORKDIR /fideslib
 RUN pip install -e ".[all]"
