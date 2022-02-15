@@ -1,5 +1,3 @@
-# pylint: disable=missing-function-docstring
-
 from fastapi import status
 
 import fideslib.oauth.api.exceptions as exc
