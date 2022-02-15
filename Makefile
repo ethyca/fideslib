@@ -31,23 +31,26 @@ build:
 ####################
 
 black:
-	@$(RUN) black --check src
+	@$(RUN) black --check fideslib
 
 # The order of dependent targets here is intentional
-check-all: build black pylint mypy xenon pytest
+check-all: build check-install black pylint mypy xenon pytest
 	@echo "Running formatter, linter, typechecker and tests..."
 
+check-install:
+	@$(RUN) python -c "import fideslib; from fideslib import oauth"
+
 mypy:
-	@$(RUN) mypy --ignore-missing-imports src
+	@$(RUN) mypy --ignore-missing-imports fideslib
 
 pylint:
-	@$(RUN) pylint src
+	@$(RUN) pylint fideslib
 
 pytest:
-	@$(RUN) pytest -x -m unit
+	@$(RUN) pytest
 
 xenon:
-	@$(RUN) xenon . \
+	@$(RUN) xenon fideslib \
 	--max-absolute B \
 	--max-modules B \
 	--max-average A

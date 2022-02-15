@@ -10,28 +10,28 @@ from fastapi.security import HTTPBasic, SecurityScopes
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-import oauth.api.endpoints as endpoints
-import oauth.jwt as jwt
-from oauth.api.exceptions import (
+import fideslib.oauth.api.endpoints as endpoints
+import fideslib.oauth.jwt as jwt
+from fideslib.oauth.api.exceptions import (
     AuthenticationException,
     AuthorizationException,
     ClientWriteFailedException,
     ClientNotFoundException,
     ExpiredTokenException,
 )
-from oauth.api.models import (
+from fideslib.oauth.api.models import (
     AccessToken,
     ClientCreatedResponse,
     OAuth2ClientCredentialsRequestForm,
 )
-from oauth.api.utils import (
+from fideslib.oauth.api.utils import (
     extract_payload,
     is_token_expired,
     oauth2_scheme,
     validate_scopes,
 )
-from oauth.database.client_detail_model import ClientDetail
-from oauth.scopes import (
+from fideslib.oauth.database.client_detail_model import ClientDetail
+from fideslib.oauth.scopes import (
     CLIENT_CREATE,
     CLIENT_DELETE,
     CLIENT_READ,

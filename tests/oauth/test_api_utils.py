@@ -1,12 +1,10 @@
-# pylint: disable=missing-function-docstring
-
 from datetime import datetime, timedelta
 
 import pytest
 
-import oauth.api.utils as utils
-from oauth.api.exceptions import InvalidScopeException
-from oauth.scopes import SCOPES
+import fideslib.oauth.api.utils as utils
+from fideslib.oauth.api.exceptions import InvalidScopeException
+from fideslib.oauth.scopes import SCOPES
 
 
 def test_is_token_expired():
@@ -25,12 +23,14 @@ def test_is_token_expired():
     assert not utils.is_token_expired(four_minutes_ago, token_duration)
 
 
-def test_validate_scopes():
-    # Succeeds when only valid scopes are provided
-    assert utils.validate_scopes(SCOPES[0:3]) is None
+class TestScopeValidation:
+    def test_validate_scopes(self):
+        "Succeeds when only valid scopes are provided."
+        assert utils.validate_scopes(SCOPES[0:3]) is None
 
-    # Raises an InvalidScopeException when invalid scopes are provided
-    with pytest.raises(InvalidScopeException):
-        utils.validate_scopes(
-            SCOPES[0:2] + ["invalid:one", "invalid:two", "invalid:three"]
-        )
+    def test_invalid_scope(self):
+        "Raises an InvalidScopeException when invalid scopes are provided."
+        with pytest.raises(InvalidScopeException):
+            utils.validate_scopes(
+                SCOPES[0:2] + ["invalid:one", "invalid:two", "invalid:three"]
+            )

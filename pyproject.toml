@@ -34,16 +34,7 @@ disable=[
   "unsubscriptable-object",
 ]
 ignore=[
-  ".github",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".vscode",
   "fideslib.egg-info",
-  ".gitignore",
-  "dev-requirements.txt",
-  "LICENSE",
-  "pyproject.toml",
-  "README.md",
 ]
 
 [tool.pylint.reports]

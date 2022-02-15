@@ -9,10 +9,10 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-import cryptography as crypto
-import oauth.jwt as jwt
-from oauth.api.utils import generate_jwe
-from oauth.scopes import SCOPES
+import fideslib.cryptography as crypto
+import fideslib.oauth.jwt as jwt
+from fideslib.oauth.api.utils import generate_jwe
+from fideslib.oauth.scopes import SCOPES
 
 
 class ClientDetail:

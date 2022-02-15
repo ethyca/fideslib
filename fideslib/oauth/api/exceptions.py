@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import HTTPException, status
 
-from oauth.scopes import SCOPES
+from fideslib.oauth.scopes import SCOPES
 
 
 class AuthenticationException(HTTPException):

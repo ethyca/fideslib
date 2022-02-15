@@ -6,7 +6,7 @@ from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from pydantic import BaseModel
 
-from oauth.api.exceptions import InvalidAuthorizationSchemeException
+from fideslib.oauth.api.exceptions import InvalidAuthorizationSchemeException
 
 
 class AccessToken(BaseModel):

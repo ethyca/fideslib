@@ -2,7 +2,7 @@
 
 import pytest
 
-import cryptography as crypto
+from fideslib import cryptography as crypto
 
 TEST_BYTESTRING = b"foobar"
 B64_ENCODED = "Zm9vYmFy"

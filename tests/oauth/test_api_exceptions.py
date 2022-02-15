@@ -2,8 +2,8 @@
 
 from fastapi import status
 
-import oauth.api.exceptions as exc
-from oauth.scopes import SCOPES
+import fideslib.oauth.api.exceptions as exc
+from fideslib.oauth.scopes import SCOPES
 
 
 def test_authentication_exception():

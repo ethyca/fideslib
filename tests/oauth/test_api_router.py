@@ -4,8 +4,8 @@ from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker
 
-import oauth.api.endpoints as endpoints
-from oauth.api.router import OAuthRouter
+import fideslib.oauth.api.endpoints as endpoints
+from fideslib.oauth.api.router import OAuthRouter
 
 
 def get_dummy_db():
