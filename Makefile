@@ -10,7 +10,9 @@ IMAGE := $(IMAGE_NAME):local
 
 # Run in Compose
 RUN = docker run --rm $(IMAGE)
-RUN_IT = docker run --rm -it $(IMAGE) /bin/bash
+RUN_IT = docker run \
+	--rm -it $(IMAGE) \
+	/bin/bash
 
 ####################
 # Dev
@@ -41,7 +43,10 @@ check-install:
 	@$(RUN) python -c "import fideslib; from fideslib import oauth"
 
 mypy:
-	@$(RUN) mypy --ignore-missing-imports fideslib
+	@$(RUN) mypy \
+	--ignore-missing-imports \
+	--exclude fideslib/oauth/database/client_detail_model.py \
+	fideslib
 
 pylint:
 	@$(RUN) pylint fideslib

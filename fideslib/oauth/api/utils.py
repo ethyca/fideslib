@@ -4,10 +4,10 @@ from typing import List
 from jose import jwe
 from jose.constants import ALGORITHMS
 
-from oauth.api.exceptions import InvalidScopeException
-from oauth.api.endpoints import TOKEN
-from oauth.api.models import OAuth2ClientCredentialsBearer
-from oauth.scopes import SCOPES, SCOPE_DOCS
+from fideslib.oauth.api.exceptions import InvalidScopeException
+from fideslib.oauth.api.endpoints import TOKEN
+from fideslib.oauth.api.models import OAuth2ClientCredentialsBearer
+from fideslib.oauth.scopes import SCOPES, SCOPE_DOCS
 
 oauth2_scheme = OAuth2ClientCredentialsBearer(tokenUrl=TOKEN, scopes=SCOPE_DOCS)
 

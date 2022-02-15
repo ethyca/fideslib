@@ -36,6 +36,7 @@ disable=[
 ignore=[
   "fideslib.egg-info",
 ]
+extension-pkg-whitelist = "pydantic"
 
 [tool.pylint.reports]
 reports="no"

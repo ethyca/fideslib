@@ -28,9 +28,10 @@ class TestScopeValidation:
         "Succeeds when only valid scopes are provided."
         assert utils.validate_scopes(SCOPES[0:3]) is None
 
-    def test_invalid_scope(self):
+    def test_invalid_scopes(self):
         "Raises an InvalidScopeException when invalid scopes are provided."
         with pytest.raises(InvalidScopeException):
             utils.validate_scopes(
                 SCOPES[0:2] + ["invalid:one", "invalid:two", "invalid:three"]
             )
+        assert True
