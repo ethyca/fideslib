@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker

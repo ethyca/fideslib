@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 from datetime import datetime, timedelta
 
 import pytest
@@ -34,4 +36,3 @@ class TestScopeValidation:
             utils.validate_scopes(
                 SCOPES[0:2] + ["invalid:one", "invalid:two", "invalid:three"]
             )
-        assert True

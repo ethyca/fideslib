@@ -1,9 +1,13 @@
-from pathlib import Path
-from setuptools import setup, find_packages
 from typing import List
+
+from setuptools import setup
 
 
 def read_requirements(filename: str) -> List[str]:
+    """
+    Returns the contents of a requirements file, as a list.
+    """
+
     with open(filename, "r") as file:
         requirements = file.read().strip().split("\n")
     return requirements
@@ -14,8 +18,11 @@ dev_requires = read_requirements("dev-requirements.txt")
 cryptography_requires = read_requirements("fideslib/cryptography/requirements.txt")
 oauth_requires = read_requirements("fideslib/oauth/requirements.txt")
 
-extras = {"crypto": cryptography_requires, "oauth": oauth_requires}
-extras["all"] = sum([value for key, value in extras.items()], [])
+extras = {
+    "cryptography": cryptography_requires,
+    "oauth": oauth_requires,
+}
+extras["all"] = sum([value for _, value in extras.items()], [])
 
 setup(
     name="fideslib",

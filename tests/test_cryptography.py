@@ -1,3 +1,5 @@
+# pylint: disable=line-too-long,missing-function-docstring
+
 import pytest
 
 from fideslib import cryptography as crypto
