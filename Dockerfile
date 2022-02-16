@@ -7,7 +7,7 @@ FROM --platform=linux/amd64 python:3.8-slim-buster
 RUN apt-get update
 RUN apt-get install -y \
     git \
-    vim 
+    vim
 
 #######################
 ## Application Setup ##
@@ -19,7 +19,7 @@ RUN pip install -U pip
 COPY dev-requirements.txt dev-requirements.txt
 RUN pip install -r dev-requirements.txt
 
-# Copy in the application files and install fidescls locally
+# Copy in the application files and install fideslib locally
 COPY . /fideslib
 WORKDIR /fideslib
 RUN pip install -e ".[all]"
