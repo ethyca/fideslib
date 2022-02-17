@@ -6,7 +6,7 @@
 [![Checked with mypy][mypy-image]][mypy-url]
 [![Twitter][twitter-image]][twitter-url]
 
-Each top-level directory in this repository (except `tests/`) represents a discrete package that exposes specific functionality intended to be shared across multiple fides tool codebases. Any amount of packages may be independently consumed by a given fides tool.
+Each directory within the `fideslib` directory represents a discrete package that exposes specific functionality intended to be shared across multiple fides tool codebases. Any amount of packages may be independently consumed by a given fides tool.
 
 ## Installation
 
@@ -38,8 +38,8 @@ Each top-level directory in this repository (except `tests/`) represents a discr
 
 The packages exposed by this repository are self-contained and unrelated to one another. Thus, usage varies from package to package. For package-specific usage guides, see the `README.md` files located within each package's dedicated directory:
 
-- [Cryptography](./cryptography) ([README](./cryptography/README.md))
-- [OAuth](./oauth) ([README](./oauth/README.md))
+- [Cryptography](./fideslib/cryptography) ([README](./fideslib/cryptography/README.md))
+- [OAuth](./fideslib/oauth) ([README](./fideslib/oauth/README.md))
 
 ## Contributing
 
