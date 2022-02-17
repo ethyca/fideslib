@@ -1,3 +1,26 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+#######
+# Black
+#######
+[tool.black]
+py39 = true
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
 ########
 # Pylint
 ########
@@ -7,8 +30,13 @@ disable=[
   "missing-module-docstring",
   "too-few-public-methods",
   "too-many-arguments",
+  "too-many-instance-attributes",
   "unsubscriptable-object",
 ]
+ignore=[
+  "fideslib.egg-info",
+]
+extension-pkg-whitelist = "pydantic"
 
 [tool.pylint.reports]
 reports="no"
@@ -16,3 +44,17 @@ output-format="colorized"
 
 [tool.pylint.format]
 max-line-length="88"
+
+########
+# Pytest
+########
+[tool.pytest.ini_options]
+testpaths="tests"
+log_level = "DEBUG"
+addopts = [
+  "--cov=fideslib",
+  "--cov-report=term-missing",
+  "-vv",
+  "--no-cov-on-fail",
+  "--disable-pytest-warnings",
+]
