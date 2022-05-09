@@ -33,6 +33,7 @@ setup(
     url="https://github.com/ethyca/fideslib",
     author="Ethyca, Inc.",
     author_email="fidesteam@ethyca.com",
+    license="Apache License 2.0",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -40,6 +41,8 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries",
     ],
     package_dir={"": "fideslib"},
