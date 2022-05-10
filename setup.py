@@ -26,7 +26,7 @@ extras["all"] = sum([value for _, value in extras.items()], [])
 
 setup(
     name="fideslib",
-    version="1.0.1",
+    version="1.0.2",
     description="Shared libraries, for use in any fides project.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
