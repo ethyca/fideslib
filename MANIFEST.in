@@ -3,3 +3,4 @@ include README.md
 include dev-requirements.txt
 include fideslib/cryptography/requirements.txt
 include fideslib/oauth/requirements.txt
+include fideslib/py.typed

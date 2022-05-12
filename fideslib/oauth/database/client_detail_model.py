@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 import fideslib.cryptography as crypto
-import fideslib.oauth.jwt as jwt
+from fideslib.oauth import jwt
 from fideslib.oauth.api.utils import generate_jwe
 from fideslib.oauth.scopes import SCOPES
 
@@ -82,7 +82,7 @@ class ClientDetail:
             salt.encode(encoding),
         )
 
-        resource = ClientDetail(
+        resource = ClientDetail(  # type: ignore
             hashed_secret=hashed_secret,
             id=client_id,
             salt=salt,
@@ -166,7 +166,7 @@ def _get_root_client_detail(
     encoding: str,
 ) -> Optional[ClientDetail]:
     assert root_client_secret_hash is not None
-    return ClientDetail(
+    return ClientDetail(  # type: ignore
         hashed_secret=root_client_secret_hash[0],
         id=root_client_id,
         salt=root_client_secret_hash[1].decode(encoding),

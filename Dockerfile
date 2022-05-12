@@ -17,7 +17,8 @@ RUN apt-get install -y \
 RUN pip install -U pip
 
 COPY dev-requirements.txt dev-requirements.txt
-RUN pip install -r dev-requirements.txt
+COPY requirements.txt requirements.txt
+RUN pip install -r dev-requirements.txt -r requirements.txt
 
 # Copy in the application files and install fideslib locally
 COPY . /fideslib

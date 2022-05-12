@@ -44,7 +44,6 @@ check-install:
 
 mypy:
 	@$(RUN) mypy \
-	--ignore-missing-imports \
 	--exclude fideslib/oauth/database/client_detail_model.py \
 	fideslib
 

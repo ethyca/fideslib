@@ -58,3 +58,19 @@ addopts = [
   "--no-cov-on-fail",
   "--disable-pytest-warnings",
 ]
+
+#######
+# MyPy
+#######
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["jose.*", "setuptools.*", "sqlalchemy_utils.*"]
+ignore_missing_imports = true

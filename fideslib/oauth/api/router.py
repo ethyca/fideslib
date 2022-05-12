@@ -10,13 +10,13 @@ from fastapi.security import HTTPBasic, SecurityScopes
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-import fideslib.oauth.api.endpoints as endpoints
-import fideslib.oauth.jwt as jwt
+from fideslib.oauth import jwt
+from fideslib.oauth.api import endpoints
 from fideslib.oauth.api.exceptions import (
     AuthenticationException,
     AuthorizationException,
-    ClientWriteFailedException,
     ClientNotFoundException,
+    ClientWriteFailedException,
     ExpiredTokenException,
 )
 from fideslib.oauth.api.models import (
@@ -78,7 +78,7 @@ class OAuthRouter(APIRouter):
         self.root_client_id = oauth_root_client_id
         self.root_client_secret_hash = oauth_root_client_secret_hash
 
-        super().__init__(prefix=prefix, tags=tags)
+        super().__init__(prefix=prefix, tags=tags)  # type: ignore
 
         self.add_api_route(
             endpoints.TOKEN,
@@ -273,7 +273,7 @@ class OAuthRouter(APIRouter):
                 root_client_id=self.root_client_id,
                 root_client_secret_hash=self.root_client_secret_hash,
             )
-            return client.scopes if client is not None else []
+            return client.scopes if client is not None else []  # type: ignore
 
         return get_client_scopes
 
