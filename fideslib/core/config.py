@@ -1,7 +1,7 @@
 import hashlib
 import logging
 import os
-from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
 import bcrypt
 import tomli
@@ -166,7 +166,7 @@ class FidesConfig(FidesSettings):
     )
 
 
-def load_file(file_names: List[str]) -> str:
+def load_file(file_names: Union[List[str], str]) -> str:
     """Load a file and from the first matching location.
 
     In order, will check:
@@ -176,6 +176,15 @@ def load_file(file_names: List[str]) -> str:
     - users home (~) directory
     raises FileNotFound if none is found
     """
+
+    def process_file(dir_str: str, file_name: str) -> Optional[str]:
+        possible_location = os.path.join(dir_str, file_name)
+        if possible_location and os.path.isfile(possible_location):
+            logger.info("Loading file %s from %s", NotPii(file_name), NotPii(dir_str))
+            return possible_location
+        logger.debug("%s not found at %s", NotPii(file_name), NotPii(dir_str))
+
+        return None
 
     possible_directories = [
         os.getenv("FIDES__CONFIG_PATH"),
@@ -187,18 +196,20 @@ def load_file(file_names: List[str]) -> str:
     directories: List[str] = [d for d in possible_directories if d]
 
     for dir_str in directories:
-        for file_name in file_names:
-            possible_location = os.path.join(dir_str, file_name)
-            if possible_location and os.path.isfile(possible_location):
-                logger.info(
-                    "Loading file %s from %s", NotPii(file_name), NotPii(dir_str)
-                )
+        if isinstance(file_names, list):
+            for file_name in file_names:
+                possible_location = process_file(dir_str, file_name)
+                if possible_location:
+                    return possible_location
+        else:
+            possible_location = process_file(dir_str, file_names)
+            if possible_location:
                 return possible_location
-            logger.debug("%s not found at %s", NotPii(file_name), NotPii(dir_str))
+
     raise FileNotFoundError
 
 
-def load_toml(file_names: List[str]) -> MutableMapping[str, Any]:
+def load_toml(file_names: Union[List[str], str]) -> MutableMapping[str, Any]:
     """Load toml file from possible locations specified in load_file.
 
     Will raise FileNotFoundError or ValidationError on missing or
@@ -209,7 +220,11 @@ def load_toml(file_names: List[str]) -> MutableMapping[str, Any]:
         return tomli.load(f)
 
 
-def get_config() -> FidesConfig:
+def get_config(
+    *,
+    class_name: Type[FidesConfig] = FidesConfig,
+    file_names: Union[List[str], str] = ["fides.toml", "fidesops.toml"],
+) -> FidesConfig:
     """
     Attempt to read config file named fides.toml or fidesops.toml from:
     - env var FIDES__CONFIG_PATH
@@ -219,9 +234,8 @@ def get_config() -> FidesConfig:
     This will fail on the first encountered bad conf file.
     """
 
-    file_names = ["fides.toml", "fidesops.toml"]
     try:
-        return FidesConfig.parse_obj(load_toml(file_names))
+        return class_name.parse_obj(load_toml(file_names))
     except (FileNotFoundError, ValidationError) as e:
         if len(file_names) == 1:
             logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
@@ -233,7 +247,7 @@ def get_config() -> FidesConfig:
         # the environment. Default values will still be used if the matching
         # environment variable is not set.
         try:
-            return FidesConfig()
+            return class_name()
         except ValidationError as exc:
             logger.error("ValidationError: %s", exc)
             # If FidesConfig is missing any required values Pydantic will throw
