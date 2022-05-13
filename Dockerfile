@@ -16,6 +16,7 @@ RUN apt-get install -y \
 # Install Requirements
 RUN pip install -U pip
 
+COPY pyproject.toml pyproject.toml
 COPY dev-requirements.txt dev-requirements.txt
 COPY requirements.txt requirements.txt
 RUN pip install -r dev-requirements.txt -r requirements.txt
