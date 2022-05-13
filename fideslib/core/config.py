@@ -221,8 +221,8 @@ def load_toml(file_names: Union[List[str], str]) -> MutableMapping[str, Any]:
 
 
 def get_config(
-    *,
     class_name: Type[FidesConfig] = FidesConfig,
+    *,
     file_names: Union[List[str], str] = ["fides.toml", "fidesops.toml"],
 ) -> FidesConfig:
     """
