@@ -18,6 +18,9 @@ class FidesSettings(BaseSettings):
     """Class used as a base model for configuration subsections."""
 
     class Config:  # pylint: disable=C0115
+        # Need to allow extras because the inheriting class will have more info
+        extras = "allow"
+
         @classmethod
         def customise_sources(
             cls,
