@@ -7,9 +7,9 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy.orm import Session, relationship
 
 from fideslib.core.config import config
+from fideslib.cryptography.cryptographic_util import generate_salt, hash_with_salt
 from fideslib.db.base_class import Base
 from fideslib.models.audit_log import AuditLog
-from fideslib.utils.cryptographic_util import generate_salt, hash_with_salt
 
 
 class FidesUser(Base):  # type: ignore

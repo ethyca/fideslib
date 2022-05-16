@@ -1,7 +1,18 @@
-"""
-Keys included in JSON web token payloads.
-"""
+from jose import jwe
+from jose.constants import ALGORITHMS
 
-JWE_ISSUED_AT = "iat"
-JWE_PAYLOAD_CLIENT_ID = "client-id"
-JWE_PAYLOAD_SCOPES = "scopes"
+from fideslib.core.config import config
+
+_JWT_ENCRYPTION_ALGORITHM = ALGORITHMS.A256GCM
+
+
+def generate_jwe(payload: str) -> str:
+    """Generates a JWE with the provided payload.
+
+    Returns a string representation.
+    """
+    return jwe.encrypt(
+        payload,
+        config.security.APP_ENCRYPTION_KEY,
+        encryption=_JWT_ENCRYPTION_ALGORITHM,
+    ).decode(config.security.ENCODING)

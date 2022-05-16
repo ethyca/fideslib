@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import os
+from pathlib import Path
 from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
 import bcrypt
@@ -9,7 +10,7 @@ from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, ValidationError, val
 from pydantic.env_settings import SettingsSourceCallable
 
 from fideslib.exceptions import MissingConfig
-from fideslib.utils.logger import NotPii
+from fideslib.logging.logger import NotPii
 
 logger = logging.getLogger(__name__)
 
@@ -130,15 +131,13 @@ class SecuritySettings(FidesSettings):
         This is hashed as it is not wise to return a plaintext for of the
         root credential anywhere in the system.
         """
-        value = values["OAUTH_ROOT_CLIENT_SECRET"]
+        value = values.get("OAUTH_ROOT_CLIENT_SECRET")
         if not value:
             raise MissingConfig(
-                "OAUTH_ROOT_CLIENT_SECRET is required", DatabaseSettings
+                "OAUTH_ROOT_CLIENT_SECRET is required", SecuritySettings
             )
 
         encoding = values["ENCODING"]
-        if not encoding:
-            raise MissingConfig("ENCODING is required")
 
         salt = bcrypt.gensalt()
         hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
@@ -170,7 +169,7 @@ class FidesConfig(FidesSettings):
     )
 
 
-def load_file(file_names: Union[List[str], str]) -> str:
+def load_file(file_names: Union[List[Path], List[str], Path, str]) -> str:
     """Load a file and from the first matching location.
 
     In order, will check:
@@ -202,18 +201,20 @@ def load_file(file_names: Union[List[str], str]) -> str:
     for dir_str in directories:
         if isinstance(file_names, list):
             for file_name in file_names:
-                possible_location = process_file(dir_str, file_name)
+                possible_location = process_file(dir_str, str(file_name))
                 if possible_location:
                     return possible_location
         else:
-            possible_location = process_file(dir_str, file_names)
+            possible_location = process_file(dir_str, str(file_names))
             if possible_location:
                 return possible_location
 
     raise FileNotFoundError
 
 
-def load_toml(file_names: Union[List[str], str]) -> MutableMapping[str, Any]:
+def load_toml(
+    file_names: Union[List[Path], List[str], Path, str]
+) -> MutableMapping[str, Any]:
     """Load toml file from possible locations specified in load_file.
 
     Will raise FileNotFoundError or ValidationError on missing or
@@ -227,7 +228,10 @@ def load_toml(file_names: Union[List[str], str]) -> MutableMapping[str, Any]:
 def get_config(
     class_name: Type[FidesConfig] = FidesConfig,
     *,
-    file_names: Union[List[str], str] = ["fides.toml", "fidesops.toml"],
+    file_names: Union[List[Path], List[str], Path, str] = [
+        "fides.toml",
+        "fidesops.toml",
+    ],
 ) -> FidesConfig:
     """
     Attempt to read config file named fides.toml or fidesops.toml from:
@@ -241,12 +245,17 @@ def get_config(
     try:
         return class_name.parse_obj(load_toml(file_names))
     except (FileNotFoundError, ValidationError) as e:
-        if len(file_names) == 1:
-            logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
+        if isinstance(file_names, list):
+            if len(file_names) == 1:
+                logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
+            else:
+                logger.warning(
+                    "%s could not be loaded: %s",
+                    " or ".join([str(x) for x in file_names]),
+                    NotPii(e),
+                )
         else:
-            logger.warning(
-                "%s could not be loaded: %s", " or ".join(file_names), NotPii(e)
-            )
+            logger.warning("%s could not be loaded: %s", file_names, NotPii(e))
         # If no path is specified Pydantic will attempt to read settings from
         # the environment. Default values will still be used if the matching
         # environment variable is not set.

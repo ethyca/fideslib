@@ -1,9 +1,9 @@
 from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
 
-from fideslib.api.v1.scope_registry import PRIVACY_REQUEST_READ
 from fideslib.db.base_class import Base
 from fideslib.models.fides_user import FidesUser
+from fideslib.oauth.api.scope_registry import PRIVACY_REQUEST_READ
 
 
 class FidesUserPermissions(Base):  # type: ignore

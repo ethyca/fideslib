@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from pydantic import validator
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
-from fideslib.api.v1.scope_registry import SCOPE_REGISTRY
+from fideslib.oauth.api.scope_registry import SCOPE_REGISTRY
 from fideslib.schemas.base_class import BaseSchema
 
 

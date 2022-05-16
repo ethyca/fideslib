@@ -8,21 +8,21 @@ from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Session
 
-from fideslib.api.v1.scope_registry import SCOPE_REGISTRY
 from fideslib.core.config import config
-from fideslib.db.base_class import Base
-from fideslib.models.fides_user import FidesUser
-from fideslib.schemas.jwt import (
-    JWE_ISSUED_AT,
-    JWE_PAYLOAD_CLIENT_ID,
-    JWE_PAYLOAD_SCOPES,
-)
-from fideslib.utils.cryptographic_util import (
+from fideslib.cryptography.cryptographic_util import (
     generate_salt,
     generate_secure_random_string,
     hash_with_salt,
 )
-from fideslib.utils.oauth_util import generate_jwe
+from fideslib.cryptography.schemas.jwt import (
+    JWE_ISSUED_AT,
+    JWE_PAYLOAD_CLIENT_ID,
+    JWE_PAYLOAD_SCOPES,
+)
+from fideslib.db.base_class import Base
+from fideslib.models.fides_user import FidesUser
+from fideslib.oauth.api.scope_registry import SCOPE_REGISTRY
+from fideslib.oauth.jwt import generate_jwe
 
 DEFAULT_SCOPES: list[str] = []
 

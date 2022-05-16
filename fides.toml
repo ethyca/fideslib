@@ -1,0 +1,14 @@
+[database]
+SERVER="db"
+USER="postgres"
+PASSWORD="216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a"
+DB="app"
+TEST_DB="test"
+
+[security]
+APP_ENCRYPTION_KEY="OLMkv91j8DHiDAULnK5Lxx3kSCov30b3"
+CORS_ORIGINS=["http://localhost", "http://localhost:8080", "http://localhost:3000", "http://localhost:3001"]
+ENCODING="UTF-8"
+OAUTH_ROOT_CLIENT_ID="fidesadmin"
+OAUTH_ROOT_CLIENT_SECRET="fidesadminsecret"
+DRP_JWT_SECRET="secret"
