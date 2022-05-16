@@ -6,20 +6,12 @@
 [![Checked with mypy][mypy-image]][mypy-url]
 [![Twitter][twitter-image]][twitter-url]
 
-Each directory within the `fideslib` directory represents a discrete package that exposes specific functionality intended to be shared across multiple fides tool codebases. Any amount of packages may be independently consumed by a given fides tool.
-
 ## Installation
 
 1. Add `fideslib` to the `requirements.txt` (or equivalent) file:
 
-    ```
+    ```sh
     fideslib==1.0.0
-    ```
-
-    Alternatively, include specific packages by specifying them by name:
-
-    ```
-    fideslib[cryptography,oauth]==1.0.0
     ```
 
 1. Within the project's virtual environment, install the required dependencies with the `pip install` command:
@@ -27,19 +19,6 @@ Each directory within the `fideslib` directory represents a discrete package tha
     ```sh
     pip install -r requirements.txt
     ```
-
-> Install `fideslib` globally by running the `pip install` command outside of any virtual environment:
->
-> ```
-> pip install fideslib
-> ```
-
-## Usage
-
-The packages exposed by this repository are self-contained and unrelated to one another. Thus, usage varies from package to package. For package-specific usage guides, see the `README.md` files located within each package's dedicated directory:
-
-- [Cryptography](./fideslib/cryptography) ([README](./fideslib/cryptography/README.md))
-- [OAuth](./fideslib/oauth) ([README](./fideslib/oauth/README.md))
 
 ## Contributing
 
