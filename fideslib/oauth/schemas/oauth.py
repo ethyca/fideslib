@@ -1,6 +1,3 @@
-# TODO: Remove the pylint disable after merging this with oauth module # pylint: disable=W0511
-# pylint: disable=R0801
-
 from typing import Dict, Optional
 
 from fastapi import Form, HTTPException
@@ -47,8 +44,6 @@ class OAuth2ClientCredentialsBearer(OAuth2):
             description=description,
             auto_error=auto_error,
         )
-
-    # pylint: enable=R0913
 
     async def __call__(self, request: Request) -> Optional[str]:
         authorization: str = request.headers.get("Authorization")

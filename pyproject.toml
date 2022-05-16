@@ -55,7 +55,6 @@ addopts = [
   "--cov-report=term-missing",
   "-vv",
   "--no-cov-on-fail",
-  "--disable-pytest-warnings",
 ]
 
 #######

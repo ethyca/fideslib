@@ -7,7 +7,7 @@ from fideslib.oauth.api.scope_registry import PRIVACY_REQUEST_READ
 
 
 class FidesUserPermissions(Base):  # type: ignore
-    """The DB ORM model for FidesopsUserPermissions"""
+    """The DB ORM model for FidesUserPermissions"""
 
     user_id = Column(String, ForeignKey(FidesUser.id), nullable=False, unique=True)
     # escaping curly braces requires doubling them. Not a "\". So {{{test123}}}

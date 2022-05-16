@@ -8,7 +8,7 @@ from fideslib.schemas.base_class import BaseSchema
 
 
 class UserCreate(BaseSchema):
-    """Data required to create a FidesopsUser"""
+    """Data required to create a FidesUser."""
 
     username: str
     password: str
@@ -17,9 +17,7 @@ class UserCreate(BaseSchema):
 
     @validator("username")
     def validate_username(cls, username: str) -> str:  # pylint: disable=E0213, R0201
-        """Ensure password does not have spaces"""
-        if not username:
-            raise ValueError("Must enter username.")
+        """Ensure password does not have spaces."""
         if " " in username:
             raise ValueError("Usernames cannot have spaces.")
         return username
@@ -61,7 +59,7 @@ class UserResponse(BaseSchema):
 
 
 class UserCreateResponse(BaseSchema):
-    """Response after creating a FidesopsUser"""
+    """Response after creating a FidesUser"""
 
     id: str
 
