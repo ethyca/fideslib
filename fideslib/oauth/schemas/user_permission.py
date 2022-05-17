@@ -22,7 +22,7 @@ class UserPermissionsCreate(BaseSchema):
         if len(diff) > 0:
             raise HTTPException(
                 status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Invalid Scope(s) {diff}. Scopes must be one of {SCOPE_REGISTRY}.",  # pylint: disable=C0301
+                detail=f"Invalid Scope(s) {diff}. Scopes must be one of {SCOPE_REGISTRY}.",
             )
         return scopes
 

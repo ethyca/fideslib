@@ -1,4 +1,4 @@
-# pylint: disable=W0622
+# pylint: disable=redefined-builtin
 
 from __future__ import annotations
 
@@ -14,6 +14,8 @@ from sqlalchemy.sql import func
 
 from fideslib.exceptions import KeyOrNameAlreadyExists, KeyValidationError
 from fideslib.utils.text import to_snake_case
+
+ALLOWED_CHARS = re.compile(r"[A-z0-9\-_]")
 
 
 def get_key_from_data(data: dict[str, Any], cls_name: str) -> str:
@@ -115,7 +117,7 @@ class OrmWrappedFidesBase(FidesBase):
         ]
 
     @classmethod
-    def get(cls, db: Session, *, id: Any) -> FidesBase | None:  # pylint: disable=
+    def get(cls, db: Session, *, id: Any) -> FidesBase | None:
         """Fetch a database record via a table ID"""
         return db.query(cls).get(id)
 
@@ -154,8 +156,8 @@ class OrmWrappedFidesBase(FidesBase):
             data["key"] = get_key_from_data(data, cls.__name__)
             if db.query(cls).filter_by(key=data["key"]).first():
                 raise KeyOrNameAlreadyExists(
-                    f"Key {data['key']} already exists in {cls.__name__}. Keys will be snake-cased names if not provided. "  # pylint: disable=C0301
-                    f"If you are seeing this error without providing a key, please provide a key or a different name."  # pylint: disable=C0301
+                    f"Key {data['key']} already exists in {cls.__name__}. Keys will be snake-cased names if not provided. "
+                    f"If you are seeing this error without providing a key, please provide a key or a different name."
                     ""
                 )
 
@@ -265,8 +267,7 @@ class OrmWrappedFidesBase(FidesBase):
 
             is_valid = False
             if key is not None:
-                allowed_chars = re.compile(r"[A-z0-9\-_]")
-                is_valid = len(allowed_chars.sub("", key)) == 0
+                is_valid = len(ALLOWED_CHARS.sub("", key)) == 0
 
             if not is_valid:
                 raise KeyValidationError(

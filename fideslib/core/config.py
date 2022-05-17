@@ -228,17 +228,15 @@ def get_config(
     try:
         return class_name.parse_obj(load_toml(file_names))
     except (FileNotFoundError, ValidationError) as e:
-        if isinstance(file_names, list):
-            if len(file_names) == 1:
-                logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
-            else:
-                logger.warning(
-                    "%s could not be loaded: %s",
-                    " or ".join([str(x) for x in file_names]),
-                    NotPii(e),
-                )
+        if len(file_names) == 1:
+            logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
         else:
-            logger.warning("%s could not be loaded: %s", file_names, NotPii(e))
+            logger.warning(
+                "%s could not be loaded: %s",
+                " or ".join([str(x) for x in file_names]),
+                NotPii(e),
+            )
+
         # If no path is specified Pydantic will attempt to read settings from
         # the environment. Default values will still be used if the matching
         # environment variable is not set.

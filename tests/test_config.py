@@ -1,4 +1,4 @@
-# pylint: disable=W0621, C0116
+# pylint: disable=missing-function-docstring, redefined-outer-name
 
 import pytest
 
@@ -18,7 +18,7 @@ def config_dict(fides_toml_path):
 
 
 def test_database_settings_sqlalchemy_database_uri_str(config_dict):
-    expected = "postgresql://someuri:216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a@db:5432/test"  # pylint: disable=C0301
+    expected = "postgresql://someuri:216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a@db:5432/test"
     config_dict["database"]["SQLALCHEMY_DATABASE_URI"] = expected
     settings = DatabaseSettings.parse_obj(config_dict["database"])
 
@@ -26,7 +26,7 @@ def test_database_settings_sqlalchemy_database_uri_str(config_dict):
 
 
 def test_database_settings_sqlalchemy_test_database_uri_str(config_dict):
-    expected = "postgresql://someuri:216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a@db:5432/test"  # pylint: disable=C0301
+    expected = "postgresql://someuri:216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a@db:5432/test"
     config_dict["database"]["SQLALCHEMY_TEST_DATABASE_URI"] = expected
     settings = DatabaseSettings.parse_obj(config_dict["database"])
 
@@ -34,6 +34,7 @@ def test_database_settings_sqlalchemy_test_database_uri_str(config_dict):
 
 
 def test_config():
+    print(config)
     assert config.database
     assert config.security
 

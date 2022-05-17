@@ -26,6 +26,7 @@ exclude = '''
 [tool.pylint.messages_control]
 disable=[
   "invalid-name",
+  "line-too-long",
   "missing-class-docstring",
   "missing-module-docstring",
   "too-few-public-methods",
