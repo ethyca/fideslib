@@ -169,6 +169,7 @@ def load_file(file_names: Union[List[Path], List[str]]) -> str:
     - A path set at ENV variable FIDES__CONFIG_PATH
     - The current directory
     - The parent directory
+    - The parent_directory/.fides
     - users home (~) directory
     raises FileNotFound if none is found
     """
@@ -177,6 +178,7 @@ def load_file(file_names: Union[List[Path], List[str]]) -> str:
         os.getenv("FIDES__CONFIG_PATH"),
         os.curdir,
         os.pardir,
+        os.path.join(os.pardir, ".fides"),
         os.path.expanduser("~"),
     ]
 
@@ -209,12 +211,13 @@ def get_config(
     class_name: Type[FidesConfig] = FidesConfig,
     *,
     file_names: Union[List[Path], List[str]] = [
-        "fides.toml",
         "fidesops.toml",
+        "fidesctl.toml",
+        "fides.toml",
     ],
 ) -> FidesConfig:
     """
-    Attempt to read config file named fides.toml or fidesops.toml from:
+    Attempt to read config file named fidesops.toml, fidesctl.toml, or fides.toml from:
     - env var FIDES__CONFIG_PATH
     - local directory
     - parent directory

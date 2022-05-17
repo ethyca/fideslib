@@ -160,7 +160,7 @@ class OrmWrappedFidesBase(FidesBase):
                 )
 
         if hasattr(cls, "name"):
-            data["name"] = data.get("name", None)
+            data["name"] = data.get("name")
             if db.query(cls).filter_by(name=data["name"]).first():
                 raise KeyOrNameAlreadyExists(
                     f"Name {data['name']} already exists in {cls.__name__}."
@@ -261,7 +261,7 @@ class OrmWrappedFidesBase(FidesBase):
     def save(self, db: Session) -> FidesBase:
         """Save the current object over an existing row in the database"""
         if hasattr(self, "key"):
-            key = getattr(self, "key", None)
+            key = getattr(self, "key")
 
             is_valid = False
             if key is not None:
