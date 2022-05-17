@@ -1,5 +1,8 @@
+# pylint: disable=W0622
+
 from __future__ import annotations
 
+import re
 from typing import Any
 from uuid import uuid4
 
@@ -54,12 +57,14 @@ class FidesBase:
         return f"{prefix}{uuid}"
 
     @declared_attr
-    def __tablename__(cls) -> str:  # pylint: disable=E0213
+    @classmethod
+    def __tablename__(cls) -> str:
         """The name of this model's table in the DB"""
         return cls.__name__.lower()  # type: ignore #pylint: disable=E1101
 
     @declared_attr
-    def id_field_path(cls) -> str:  # pylint: disable=E0213
+    @classmethod
+    def id_field_path(cls) -> str:
         """
         The database path to any model's ID field, for use with ForeignKey
         specifications in the event we have overridden a model's
@@ -110,7 +115,7 @@ class OrmWrappedFidesBase(FidesBase):
         ]
 
     @classmethod
-    def get(cls, db: Session, *, id: Any) -> FidesBase | None:  # pylint: disable=W0622
+    def get(cls, db: Session, *, id: Any) -> FidesBase | None:  # pylint: disable=
         """Fetch a database record via a table ID"""
         return db.query(cls).get(id)
 
@@ -132,17 +137,12 @@ class OrmWrappedFidesBase(FidesBase):
         return db.query(cls)
 
     @classmethod
-    def all(cls, db: Session) -> list[OrmWrappedFidesBase]:  # pylint: disable=W0622
+    def all(cls, db: Session) -> list[OrmWrappedFidesBase]:
         """Fetch all database records in table"""
         return db.query(cls).all()
 
     @classmethod
-    def filter(
-        cls,
-        db: Session,
-        *,
-        conditions: Any,  # TODO: What pydantic types are these? # pylint: disable=W0511
-    ) -> Query:
+    def filter(cls, db: Session, *, conditions: list[str]) -> Query:
         """Fetch multiple models from a database table"""
         return db.query(cls).filter(conditions)
 
@@ -177,10 +177,8 @@ class OrmWrappedFidesBase(FidesBase):
         """Retrieves db object by id, if provided, otherwise attempts by key"""
         db_obj: FidesBase | list[FidesBase] | None = None
         if data.get("id") is not None:
-            # If `id` has been included in `data`, preference that
             db_obj = cls.get(db=db, id=data["id"])
         elif data.get("key") is not None:
-            # Otherwise, try with `key`
             db_obj = cls.get_by(db=db, field="key", value=data["key"])
         return db_obj
 
@@ -223,9 +221,7 @@ class OrmWrappedFidesBase(FidesBase):
         return db.query(cls).filter(conditions).update(values=values)
 
     @classmethod
-    def delete_with_class(
-        cls, db: Session, *, id: str  # pylint: disable=W0622
-    ) -> FidesBase | None:
+    def delete_with_class(cls, db: Session, *, id: str) -> FidesBase | None:
         """Delete an existing row from the database from the object's class"""
         obj = db.query(cls).get(id)
         if obj is None:
@@ -235,7 +231,7 @@ class OrmWrappedFidesBase(FidesBase):
         return obj
 
     @classmethod
-    def delete_all(cls, db: Session) -> int:  # pylint: disable=W0622
+    def delete_all(cls, db: Session) -> int:
         """Delete all rows in this table"""
         deleted_count = db.query(cls).delete()
         return deleted_count
@@ -265,20 +261,12 @@ class OrmWrappedFidesBase(FidesBase):
     def save(self, db: Session) -> FidesBase:
         """Save the current object over an existing row in the database"""
         if hasattr(self, "key"):
-            key = getattr(self, "key", "")
+            key = getattr(self, "key", None)
 
             is_valid = False
             if key is not None:
-                valid_key_chars = (
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-                )
-                to_validate = key
-                for char in valid_key_chars:
-                    to_validate = to_validate.replace(char, "")
-
-                # Any invalid chars won't have been replaced above, so the length of our
-                # validation var will still be >0
-                is_valid = len(to_validate) == 0
+                allowed_chars = re.compile(r"[A-z0-9\-_]")
+                is_valid = len(allowed_chars.sub("", key)) == 0
 
             if not is_valid:
                 raise KeyValidationError(

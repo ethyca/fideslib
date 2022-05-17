@@ -1,6 +1,3 @@
-# TODO: Remove the pylint disable after merging this with oauth module # pylint: disable=W0511
-# pylint: disable=R0801
-
 from typing import Any, List
 
 from pydantic import BaseModel

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class FidesSettings(BaseSettings):
     """Class used as a base model for configuration subsections."""
 
-    class Config:  # pylint: disable=C0115
+    class Config:
         # Need to allow extras because the inheriting class will have more info
         extras = "allow"
 
@@ -27,10 +27,10 @@ class FidesSettings(BaseSettings):
             cls,
             init_settings: SettingsSourceCallable,
             env_settings: SettingsSourceCallable,
-            file_secret_settings: SettingsSourceCallable,  # pylint: disable=W0613
+            file_secret_settings: SettingsSourceCallable,
         ) -> Tuple[SettingsSourceCallable, ...]:
             """Set environment variables to take precedence over init values."""
-            return env_settings, init_settings
+            return env_settings, init_settings, file_secret_settings
 
 
 class DatabaseSettings(FidesSettings):
@@ -47,9 +47,8 @@ class DatabaseSettings(FidesSettings):
     SQLALCHEMY_TEST_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
-    def assemble_db_connection(  # pylint: disable=E0213, R0201
-        cls, v: Optional[str], values: Dict[str, str]
-    ) -> str:
+    @classmethod
+    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, str]) -> str:
         """Join DB connection credentials into a connection string"""
         if isinstance(v, str):
             return v
@@ -63,7 +62,8 @@ class DatabaseSettings(FidesSettings):
         )
 
     @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)
-    def assemble_test_db_connection(  # pylint: disable=E0213, R0201
+    @classmethod
+    def assemble_test_db_connection(
         cls, v: Optional[str], values: Dict[str, str]
     ) -> str:
         """Join DB connection credentials into a connection string"""
@@ -78,7 +78,7 @@ class DatabaseSettings(FidesSettings):
             path=f"/{values.get('TEST_DB') or ''}",
         )
 
-    class Config:  # pylint: disable=C0115
+    class Config:
         env_prefix = "FIDES__DATABASE__"
 
 
@@ -91,7 +91,8 @@ class SecuritySettings(FidesSettings):
     DRP_JWT_SECRET: str
 
     @validator("APP_ENCRYPTION_KEY")
-    def validate_encryption_key_length(  # pylint: disable=E0213, R0201
+    @classmethod
+    def validate_encryption_key_length(
         cls, v: Optional[str], values: Dict[str, str]
     ) -> Optional[str]:
         """Validate the encryption key is exactly 32 bytes"""
@@ -102,9 +103,8 @@ class SecuritySettings(FidesSettings):
     CORS_ORIGINS: List[AnyHttpUrl] = []
 
     @validator("CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(  # pylint: disable=E0213, R0201
-        cls, v: Union[str, List[str]]
-    ) -> Union[List[str], str]:
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         """Return a list of valid origins for CORS requests"""
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
@@ -123,7 +123,8 @@ class SecuritySettings(FidesSettings):
     OAUTH_CLIENT_SECRET_LENGTH_BYTES = 16
 
     @validator("OAUTH_ROOT_CLIENT_SECRET_HASH", pre=True)
-    def assemble_root_access_token(  # pylint: disable=E0213, R0201
+    @classmethod
+    def assemble_root_access_token(
         cls, _: Optional[str], values: Dict[str, str]
     ) -> Tuple:
         """Returns a hashed value of the root access key.
@@ -143,7 +144,7 @@ class SecuritySettings(FidesSettings):
         hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
         return hashed_client_id, salt
 
-    class Config:  # pylint: disable=C0115
+    class Config:
         env_prefix = "FIDES__SECURITY__"
 
 
@@ -157,20 +158,12 @@ class FidesConfig(FidesSettings):
     hot_reloading: bool = os.getenv("FIDES__HOT_RELOAD") == "True"
     dev_mode: bool = os.getenv("FIDES__DEV_MODE") == "True"
 
-    class Config:  # pylint: disable=C0115
+    class Config:
         case_sensitive = True
 
-    logger.warning(
-        "Startup configuration: reloading = %s, dev_mode = %s", hot_reloading, dev_mode
-    )
-    logger.warning(
-        'Startup configuration: pii logging = %s == "True"}',
-        os.getenv("FIDES__LOG_PII"),
-    )
 
-
-def load_file(file_names: Union[List[Path], List[str], Path, str]) -> str:
-    """Load a file and from the first matching location.
+def load_file(file_names: Union[List[Path], List[str]]) -> str:
+    """Load a file from the first matching location.
 
     In order, will check:
     - A path set at ENV variable FIDES__CONFIG_PATH
@@ -180,15 +173,6 @@ def load_file(file_names: Union[List[Path], List[str], Path, str]) -> str:
     raises FileNotFound if none is found
     """
 
-    def process_file(dir_str: str, file_name: str) -> Optional[str]:
-        possible_location = os.path.join(dir_str, file_name)
-        if possible_location and os.path.isfile(possible_location):
-            logger.info("Loading file %s from %s", NotPii(file_name), NotPii(dir_str))
-            return possible_location
-        logger.debug("%s not found at %s", NotPii(file_name), NotPii(dir_str))
-
-        return None
-
     possible_directories = [
         os.getenv("FIDES__CONFIG_PATH"),
         os.curdir,
@@ -196,25 +180,21 @@ def load_file(file_names: Union[List[Path], List[str], Path, str]) -> str:
         os.path.expanduser("~"),
     ]
 
-    directories: List[str] = [d for d in possible_directories if d]
+    directories = [d for d in possible_directories if d]
 
     for dir_str in directories:
-        if isinstance(file_names, list):
-            for file_name in file_names:
-                possible_location = process_file(dir_str, str(file_name))
-                if possible_location:
-                    return possible_location
-        else:
-            possible_location = process_file(dir_str, str(file_names))
-            if possible_location:
+        for file_name in file_names:
+            possible_location = os.path.join(dir_str, file_name)
+            if possible_location and os.path.isfile(possible_location):
+                logger.info(
+                    "Loading file %s from %s", NotPii(file_name), NotPii(dir_str)
+                )
                 return possible_location
 
     raise FileNotFoundError
 
 
-def load_toml(
-    file_names: Union[List[Path], List[str], Path, str]
-) -> MutableMapping[str, Any]:
+def load_toml(file_names: Union[List[Path], List[str]]) -> MutableMapping[str, Any]:
     """Load toml file from possible locations specified in load_file.
 
     Will raise FileNotFoundError or ValidationError on missing or
@@ -228,7 +208,7 @@ def load_toml(
 def get_config(
     class_name: Type[FidesConfig] = FidesConfig,
     *,
-    file_names: Union[List[Path], List[str], Path, str] = [
+    file_names: Union[List[Path], List[str]] = [
         "fides.toml",
         "fidesops.toml",
     ],

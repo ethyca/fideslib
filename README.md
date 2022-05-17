@@ -10,7 +10,7 @@
 
 1. Add `fideslib` to the `requirements.txt` (or equivalent) file:
 
-    ```sh
+    ```
     fideslib==1.0.0
     ```
 

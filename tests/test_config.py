@@ -14,7 +14,7 @@ from fideslib.exceptions import MissingConfig
 
 @pytest.fixture
 def config_dict(fides_toml_path):
-    yield load_toml(fides_toml_path)
+    yield load_toml([fides_toml_path])
 
 
 def test_database_settings_sqlalchemy_database_uri_str(config_dict):
@@ -50,7 +50,7 @@ def test_get_config_bad_files(file_names, caplog):
 
 def test_missing_config_file():
     with pytest.raises(MissingConfig):
-        get_config(file_names="bad.toml")
+        get_config(file_names=["bad.toml"])
 
 
 def test_security_cors_str(config_dict):
