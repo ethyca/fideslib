@@ -6,7 +6,14 @@ from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
 import bcrypt
 import tomli
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, ValidationError, validator
+from pydantic import (
+    AnyHttpUrl,
+    BaseSettings,
+    PostgresDsn,
+    ValidationError,
+    root_validator,
+    validator,
+)
 from pydantic.env_settings import SettingsSourceCallable
 
 from fideslib.exceptions import MissingConfig
@@ -122,12 +129,10 @@ class SecuritySettings(FidesSettings):
     OAUTH_CLIENT_ID_LENGTH_BYTES = 16
     OAUTH_CLIENT_SECRET_LENGTH_BYTES = 16
 
-    @validator("OAUTH_ROOT_CLIENT_SECRET_HASH", pre=True)
+    @root_validator(pre=True)
     @classmethod
-    def assemble_root_access_token(
-        cls, _: Optional[str], values: Dict[str, str]
-    ) -> Tuple:
-        """Returns a hashed value of the root access key.
+    def assemble_root_access_token(cls, values: Dict[str, str]) -> Dict[str, str]:
+        """Sets a hashed value of the root access key.
 
         This is hashed as it is not wise to return a plaintext for of the
         root credential anywhere in the system.
@@ -142,7 +147,8 @@ class SecuritySettings(FidesSettings):
 
         salt = bcrypt.gensalt()
         hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
-        return hashed_client_id, salt
+        values["OAUTH_ROOT_CLIENT_SECRET_HASH"] = (hashed_client_id, salt)  # type: ignore
+        return values
 
     class Config:
         env_prefix = "FIDES__SECURITY__"
@@ -228,15 +234,17 @@ def get_config(
     try:
         return class_name.parse_obj(load_toml(file_names))
     except (FileNotFoundError, ValidationError) as e:
-        if len(file_names) == 1:
-            logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
+        if isinstance(file_names, list):
+            if len(file_names) == 1:
+                logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
+            else:
+                logger.warning(
+                    "%s could not be loaded: %s",
+                    " or ".join([str(x) for x in file_names]),
+                    NotPii(e),
+                )
         else:
-            logger.warning(
-                "%s could not be loaded: %s",
-                " or ".join([str(x) for x in file_names]),
-                NotPii(e),
-            )
-
+            logger.warning("%s could not be loaded: %s", file_names, NotPii(e))
         # If no path is specified Pydantic will attempt to read settings from
         # the environment. Default values will still be used if the matching
         # environment variable is not set.

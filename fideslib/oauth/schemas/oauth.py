@@ -24,9 +24,6 @@ class OAuth2ClientCredentialsBearer(OAuth2):
     authenticate and receive a valid token.
     """
 
-    # pylint: disable=R0913
-    # NOTE: Disable this lint rule, as this argument list needs to be consistent
-    # with FastAPI
     def __init__(
         self,
         tokenUrl: str,

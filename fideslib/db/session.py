@@ -29,7 +29,7 @@ def get_db_engine(database_uri: str | URL | None = None) -> Engine:
     uri: str | URL
 
     if database_uri is None:
-        # Don't override any database_uri explicity passed in
+        # Don't override any database_uri explicitly passed in
         if config.is_test_mode:
             uri = str(config.database.SQLALCHEMY_TEST_DATABASE_URI)
         else:

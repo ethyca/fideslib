@@ -7,6 +7,13 @@ from pydantic import validator
 from fideslib.schemas.base_class import BaseSchema
 
 
+class PrivacyRequestReviewer(BaseSchema):
+    """Data we can expose via the PrivacyRequest.reviewer relation"""
+
+    id: str
+    username: str
+
+
 class UserCreate(BaseSchema):
     """Data required to create a FidesUser."""
 
@@ -16,14 +23,16 @@ class UserCreate(BaseSchema):
     last_name: Optional[str]
 
     @validator("username")
-    def validate_username(cls, username: str) -> str:  # pylint: disable=E0213, R0201
+    @classmethod
+    def validate_username(cls, username: str) -> str:
         """Ensure password does not have spaces."""
         if " " in username:
             raise ValueError("Usernames cannot have spaces.")
         return username
 
     @validator("password")
-    def validate_password(cls, password: str) -> str:  # pylint: disable=E0213, R0201
+    @classmethod
+    def validate_password(cls, password: str) -> str:
         """Add some password requirements"""
         if len(password) < 8:
             raise ValueError("Password must have at least eight characters.")
@@ -37,6 +46,12 @@ class UserCreate(BaseSchema):
             raise ValueError("Password must have at least one symbol.")
 
         return password
+
+
+class UserCreateResponse(BaseSchema):
+    """Response after creating a FidesUser"""
+
+    id: str
 
 
 class UserLogin(BaseSchema):
@@ -58,14 +73,8 @@ class UserResponse(BaseSchema):
     last_name: Optional[str]
 
 
-class UserCreateResponse(BaseSchema):
-    """Response after creating a FidesUser"""
+class UserUpdate(BaseSchema):
+    """Data required to update a FidesopsUser"""
 
-    id: str
-
-
-class PrivacyRequestReviewer(BaseSchema):
-    """Data we can expose via the PrivacyRequest.reviewer relation"""
-
-    id: str
-    username: str
+    first_name: Optional[str]
+    last_name: Optional[str]

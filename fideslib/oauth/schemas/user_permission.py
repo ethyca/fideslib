@@ -14,9 +14,8 @@ class UserPermissionsCreate(BaseSchema):
     scopes: List[str]
 
     @validator("scopes")
-    def validate_scopes(  # pylint: disable=E0213, R0201
-        cls, scopes: List[str]
-    ) -> List[str]:
+    @classmethod
+    def validate_scopes(cls, scopes: List[str]) -> List[str]:
         """Validates that all incoming scopes are valid"""
         diff = set(scopes).difference(set(SCOPE_REGISTRY))
         if len(diff) > 0:
