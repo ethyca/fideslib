@@ -2,7 +2,6 @@
 
 import pytest
 
-from fideslib.core.config import config
 from fideslib.cryptography.cryptographic_util import (
     b64_str_to_bytes,
     bytes_to_b64_str,
@@ -58,14 +57,14 @@ def test_generate_secure_random_string():
     assert len(generated) == 10
 
 
-def test_hash_with_salt() -> None:
+def test_hash_with_salt(encoding: str = "UTF-8") -> None:
     plain_text = "This is Plaintext. Not hashed. or salted. or chopped. or grilled."
     salt = "adobo"
 
     expected_hash = "3318b888645e6599289be9bee8ac0af2e63eb095213b7269f84845303abde55c7c0f9879cd69d7f453716e439ba38dd8d9b7f0bec67fe9258fb55d90e94c972d"  # pylint: disable=C0301
     hashed = hash_with_salt(
-        plain_text.encode(config.security.ENCODING),
-        salt.encode(config.security.ENCODING),
+        plain_text.encode(encoding),
+        salt.encode(encoding),
     )
 
     assert hashed == expected_hash

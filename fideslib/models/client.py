@@ -8,7 +8,6 @@ from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Session
 
-from fideslib.core.config import config
 from fideslib.cryptography.cryptographic_util import (
     generate_salt,
     generate_secure_random_string,
@@ -46,28 +45,28 @@ class ClientDetail(Base):  # type: ignore
     def create_client_and_secret(
         cls,
         db: Session,
+        client_id_byte_length: int,
+        client_secret_byte_length: int,
+        *,
         scopes: list[str] | None = None,
         fides_key: str = None,
         user_id: str = None,
+        encoding: str = "UTF-8",
     ) -> tuple["ClientDetail", str]:
         """Creates a ClientDetail and returns that along with the unhashed secret
         so it can be returned to the user on create
         """
 
-        client_id = generate_secure_random_string(
-            config.security.OAUTH_CLIENT_ID_LENGTH_BYTES
-        )
-        secret = generate_secure_random_string(
-            config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES
-        )
+        client_id = generate_secure_random_string(client_id_byte_length)
+        secret = generate_secure_random_string(client_secret_byte_length)
 
         if not scopes:
             scopes = DEFAULT_SCOPES
 
         salt = generate_salt()
         hashed_secret = hash_with_salt(
-            secret.encode(config.security.ENCODING),
-            salt.encode(config.security.ENCODING),
+            secret.encode(encoding),
+            salt.encode(encoding),
         )
 
         client = super().create(
@@ -85,14 +84,19 @@ class ClientDetail(Base):  # type: ignore
 
     @classmethod
     def get(
-        cls, db: Session, *, id: Any  # pylint: disable=W0622
+        cls,
+        db: Session,
+        *,
+        table_id: Any,
+        root_client_id: str | None = None,
+        root_client_hash: tuple[str, str] | None = None,
     ) -> ClientDetail | None:
         """Fetch a database record via a table ID"""
-        if id == config.security.OAUTH_ROOT_CLIENT_ID:
-            return _get_root_client_detail()
+        if root_client_id and root_client_hash and table_id == root_client_id:
+            return _get_root_client_detail(root_client_id, root_client_hash)
         return super().get(db, id=id)
 
-    def create_access_code_jwe(self) -> str:
+    def create_access_code_jwe(self, encryption_key: str) -> str:
         """Generates a JWE from the client detail provided"""
         payload = {
             # client id may not be necessary
@@ -100,24 +104,27 @@ class ClientDetail(Base):  # type: ignore
             JWE_PAYLOAD_SCOPES: self.scopes,
             JWE_ISSUED_AT: datetime.now().isoformat(),
         }
-        return generate_jwe(json.dumps(payload))
+        return generate_jwe(json.dumps(payload), encryption_key)
 
-    def credentials_valid(self, provided_secret: str) -> bool:
+    def credentials_valid(self, provided_secret: str, encoding: str = "UTF-8") -> bool:
         """Verifies that the provided secret is correct"""
         provided_secret_hash = hash_with_salt(
-            provided_secret.encode(config.security.ENCODING),
-            self.salt.encode(config.security.ENCODING),
+            provided_secret.encode(encoding),
+            self.salt.encode(encoding),
         )
 
         return provided_secret_hash == self.hashed_secret
 
 
-def _get_root_client_detail() -> ClientDetail | None:
-    root_secret = config.security.OAUTH_ROOT_CLIENT_SECRET_HASH
-    assert root_secret is not None
+def _get_root_client_detail(
+    root_client_id: str, root_client_hash: tuple | None = None, encoding: str = "UTF-8"
+) -> ClientDetail | None:
+    if not root_client_hash:
+        raise ValueError("A root client hash is required")
+
     return ClientDetail(
-        id=config.security.OAUTH_ROOT_CLIENT_ID,
-        hashed_secret=root_secret[0],
-        salt=root_secret[1].decode(config.security.ENCODING),
+        id=root_client_id,
+        hashed_secret=root_client_hash[0],
+        salt=root_client_hash[1].decode(encoding),
         scopes=SCOPE_REGISTRY,
     )

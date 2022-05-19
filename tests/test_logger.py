@@ -38,7 +38,6 @@ def toggle_testing_envvar():
 def test_logger_masks_pii():
     some_data = "some_data"
     result = _mask_pii_for_logs(some_data)
-    print(result)
     assert result == MASKED
 
 

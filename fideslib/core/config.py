@@ -256,6 +256,3 @@ def get_config(
             # an ImportError. This means the config has not been correctly specified
             # so we can throw the missing config error.
             raise MissingConfig(exc.args[0]) from exc
-
-
-config = get_config()

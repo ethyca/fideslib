@@ -6,7 +6,6 @@ from typing import Any
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.orm import Session, relationship
 
-from fideslib.core.config import config
 from fideslib.cryptography.cryptographic_util import generate_salt, hash_with_salt
 from fideslib.db.base_class import Base
 from fideslib.models.audit_log import AuditLog
@@ -39,12 +38,12 @@ class FidesUser(Base):  # type: ignore
     )
 
     @classmethod
-    def hash_password(cls, password: str) -> tuple[str, str]:
+    def hash_password(cls, password: str, encoding: str = "UTF-8") -> tuple[str, str]:
         """Utility function to hash a user's password with a generated salt"""
         salt = generate_salt()
         hashed_password = hash_with_salt(
-            password.encode(config.security.ENCODING),
-            salt.encode(config.security.ENCODING),
+            password.encode(encoding),
+            salt.encode(encoding),
         )
         return hashed_password, salt
 
@@ -67,11 +66,11 @@ class FidesUser(Base):  # type: ignore
 
         return user
 
-    def credentials_valid(self, password: str) -> bool:
+    def credentials_valid(self, password: str, encoding: str = "UTF-8") -> bool:
         """Verifies that the provided password is correct."""
         provided_password_hash = hash_with_salt(
-            password.encode(config.security.ENCODING),
-            self.salt.encode(config.security.ENCODING),
+            password.encode(encoding),
+            self.salt.encode(encoding),
         )
 
         return provided_password_hash == self.hashed_password

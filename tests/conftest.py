@@ -6,14 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from fideslib.core import config
-from fideslib.core.config import get_config
-
 logger = logging.getLogger(__name__)
 
 ROOT_PATH = Path().absolute()
-
-config.config = get_config()
 
 
 @pytest.fixture(autouse=True, scope="session")

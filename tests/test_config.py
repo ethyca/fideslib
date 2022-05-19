@@ -5,7 +5,6 @@ import pytest
 from fideslib.core.config import (
     DatabaseSettings,
     SecuritySettings,
-    config,
     get_config,
     load_toml,
 )
@@ -33,12 +32,6 @@ def test_database_settings_sqlalchemy_test_database_uri_str(config_dict):
     assert settings.SQLALCHEMY_TEST_DATABASE_URI == expected
 
 
-def test_config():
-    print(config)
-    assert config.database
-    assert config.security
-
-
 @pytest.mark.parametrize(
     "file_names", ["bad.toml", ["bad.toml"], ["bad.toml", "file.toml"]]
 )
@@ -57,7 +50,6 @@ def test_missing_config_file():
 def test_security_cors_str(config_dict):
     expected = "http://localhost.com"
     config_dict["security"]["CORS_ORIGINS"] = expected
-    print(config)
     settings = SecuritySettings.parse_obj(config_dict["security"])
 
     assert settings.CORS_ORIGINS[0] == expected
