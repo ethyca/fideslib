@@ -46,7 +46,7 @@ mypy:
 	@$(RUN) mypy .
 
 pylint:
-	@$(RUN) pylint fideslib tests
+	@$(RUN) pylint fideslib migrations tests
 
 pytest:
 	@$(RUN) pytest
