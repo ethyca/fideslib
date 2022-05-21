@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 from numbers import Number
 from typing import Any, Mapping, Union
 
@@ -12,10 +11,10 @@ class NotPii(str):
     """whitelist non pii data"""
 
 
-def get_fides_log_record_factory() -> Any:
+def get_fides_log_record_factory(log_pii: bool = True) -> Any:
     """intercepts default LogRecord for custom handling of params"""
 
-    def factory(  # pylint: disable=R0913
+    def factory(
         name: str,
         level: int,
         fn: str,
@@ -26,9 +25,8 @@ def get_fides_log_record_factory() -> Any:
         func: str = None,
         sinfo: str = None,
     ) -> logging.LogRecord:
-        env_log_pii: bool = os.getenv("FIDES__LOG_PII") == "True"
         new_args = args
-        if not env_log_pii:
+        if not log_pii:
             new_args = tuple(_mask_pii_for_logs(arg) for arg in args)
         return logging.LogRecord(
             name=name,

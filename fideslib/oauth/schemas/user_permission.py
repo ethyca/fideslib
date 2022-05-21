@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from pydantic import validator
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
-from fideslib.oauth.api.scope_registry import SCOPE_REGISTRY
+from fideslib.oauth.scopes import SCOPES
 from fideslib.schemas.base_class import BaseSchema
 
 
@@ -17,11 +17,11 @@ class UserPermissionsCreate(BaseSchema):
     @classmethod
     def validate_scopes(cls, scopes: List[str]) -> List[str]:
         """Validates that all incoming scopes are valid"""
-        diff = set(scopes).difference(set(SCOPE_REGISTRY))
+        diff = set(scopes).difference(set(SCOPES))
         if len(diff) > 0:
             raise HTTPException(
                 status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Invalid Scope(s) {diff}. Scopes must be one of {SCOPE_REGISTRY}.",
+                detail=f"Invalid Scope(s) {diff}. Scopes must be one of {SCOPES}.",
             )
         return scopes
 
