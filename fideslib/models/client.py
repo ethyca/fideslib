@@ -20,8 +20,8 @@ from fideslib.cryptography.schemas.jwt import (
 )
 from fideslib.db.base_class import Base
 from fideslib.models.fides_user import FidesUser
-from fideslib.oauth.api.scope_registry import SCOPE_REGISTRY
 from fideslib.oauth.jwt import generate_jwe
+from fideslib.oauth.scopes import SCOPES
 
 DEFAULT_SCOPES: list[str] = []
 
@@ -126,5 +126,5 @@ def _get_root_client_detail(
         id=root_client_id,
         hashed_secret=root_client_hash[0],
         salt=root_client_hash[1].decode(encoding),
-        scopes=SCOPE_REGISTRY,
+        scopes=SCOPES,
     )
