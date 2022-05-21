@@ -1,12 +1,13 @@
 from typing import Dict, Optional
 
-from fastapi import Form, HTTPException
+from fastapi import Form
 from fastapi.openapi.models import OAuthFlows
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from pydantic import BaseModel
 from starlette.requests import Request
-from starlette.status import HTTP_401_UNAUTHORIZED
+
+from fideslib.exceptions import InvalidAuthorizationSchemeError
 
 
 class AccessToken(BaseModel):
@@ -47,11 +48,7 @@ class OAuth2ClientCredentialsBearer(OAuth2):
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
-                raise HTTPException(
-                    status_code=HTTP_401_UNAUTHORIZED,
-                    detail="Not authenticated",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
+                raise InvalidAuthorizationSchemeError()
             return None
         return param
 

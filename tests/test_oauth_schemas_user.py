@@ -1,9 +1,9 @@
 # pylint: disable=C0116
 
 import pytest
-from fastapi import HTTPException
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
+from fideslib.exceptions import InvalidScopeError
 from fideslib.oauth.schemas.user import UserCreate
 from fideslib.oauth.schemas.user_permission import UserPermissionsCreate
 from fideslib.oauth.scopes import USER_DELETE, USER_PERMISSION_CREATE
@@ -40,12 +40,12 @@ def test_user_create_user_name_with_spaces():
 
 def test_user_permission_catch_invalid_scopes():
     invalid_scopes = ["not a real scope", "invalid scope here"]
-    with pytest.raises(HTTPException) as exc:
+    with pytest.raises(InvalidScopeError) as exc:
         UserPermissionsCreate(scopes=invalid_scopes)
 
     assert exc.value.status_code == HTTP_422_UNPROCESSABLE_ENTITY
-    assert invalid_scopes[0] in exc.value.detail
-    assert invalid_scopes[1] in exc.value.detail
+    assert invalid_scopes[0] in str(exc.value)
+    assert invalid_scopes[1] in str(exc.value)
 
 
 def test_user_permission_scope_validation():
