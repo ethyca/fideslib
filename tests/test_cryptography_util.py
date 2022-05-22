@@ -1,4 +1,4 @@
-# pylint: disable=C0116, W0621
+# pylint: disable=missing-function-docstring, redefined-outer-name
 
 import pytest
 

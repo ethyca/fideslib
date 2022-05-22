@@ -26,11 +26,11 @@ from fideslib.oauth.scopes import SCOPES
 DEFAULT_SCOPES: list[str] = []
 
 
-class ClientDetail(Base):  # type: ignore
+class ClientDetail(Base):
     """The persisted details about a client in the system"""
 
     @declared_attr
-    def __tablename__(cls) -> str:  # pylint: disable=E0213
+    def __tablename__(self) -> str:
         return "client"
 
     hashed_secret = Column(String, nullable=False)
@@ -80,7 +80,7 @@ class ClientDetail(Base):  # type: ignore
                 "user_id": user_id,
             },
         )
-        return client, secret
+        return client, secret  # type: ignore
 
     @classmethod
     def get(
@@ -94,7 +94,7 @@ class ClientDetail(Base):  # type: ignore
         """Fetch a database record via a table ID"""
         if root_client_id and root_client_hash and table_id == root_client_id:
             return _get_root_client_detail(root_client_id, root_client_hash)
-        return super().get(db, id=id)
+        return super().get(db, table_id=table_id)  # type: ignore
 
     def create_access_code_jwe(self, encryption_key: str) -> str:
         """Generates a JWE from the client detail provided"""

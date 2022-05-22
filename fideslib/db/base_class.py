@@ -59,20 +59,18 @@ class FidesBase:
         return f"{prefix}{uuid}"
 
     @declared_attr
-    @classmethod
-    def __tablename__(cls) -> str:
+    def __tablename__(self) -> str:
         """The name of this model's table in the DB"""
-        return cls.__name__.lower()  # type: ignore #pylint: disable=E1101
+        return self.__name__.lower()  # type: ignore #pylint: disable=E1101
 
     @declared_attr
-    @classmethod
-    def id_field_path(cls) -> str:
+    def id_field_path(self) -> str:
         """
         The database path to any model's ID field, for use with ForeignKey
         specifications in the event we have overridden a model's
         __tablename__ attribute
         """
-        return f"{cls.__tablename__}.id"
+        return f"{self.__tablename__}.id"
 
     id = Column(String(255), primary_key=True, index=True, default=generate_uuid)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -117,9 +115,9 @@ class OrmWrappedFidesBase(FidesBase):
         ]
 
     @classmethod
-    def get(cls, db: Session, *, id: Any) -> FidesBase | None:
+    def get(cls, db: Session, *, table_id: Any) -> FidesBase | None:
         """Fetch a database record via a table ID"""
-        return db.query(cls).get(id)
+        return db.query(cls).get(table_id)
 
     @classmethod
     def get_by(
@@ -179,7 +177,7 @@ class OrmWrappedFidesBase(FidesBase):
         """Retrieves db object by id, if provided, otherwise attempts by key"""
         db_obj: FidesBase | list[FidesBase] | None = None
         if data.get("id") is not None:
-            db_obj = cls.get(db=db, id=data["id"])
+            db_obj = cls.get(db=db, table_id=data["id"])
         elif data.get("key") is not None:
             db_obj = cls.get_by(db=db, field="key", value=data["key"])
         return db_obj
@@ -238,12 +236,12 @@ class OrmWrappedFidesBase(FidesBase):
         deleted_count = db.query(cls).delete()
         return deleted_count
 
-    def refresh_from_db(self, db: Session) -> FidesBase:
+    def refresh_from_db(self, db: Session) -> FidesBase | None:
         """Returns a current version of this object from the database"""
         return db.query(self.__class__).get(self.id)
 
     def update(self, db: Session, *, data: dict[str, Any]) -> FidesBase:
-        """Update specific row with supplied values"""
+        """Update specific row with supplied values."""
         # Set self.key where applicable
         if hasattr(self, "key") and "key" in data:
             data["key"] = get_key_from_data(data, self.__class__.__name__)
@@ -255,13 +253,13 @@ class OrmWrappedFidesBase(FidesBase):
         return self.save(db=db)
 
     def delete(self, db: Session) -> FidesBase | None:
-        """Delete an existing row in the database from an existing object in memory"""
+        """Delete an existing row in the database from an existing object in memory."""
         db.delete(self)
         db.commit()
         return self
 
     def save(self, db: Session) -> FidesBase:
-        """Save the current object over an existing row in the database"""
+        """Save the current object over an existing row in the database."""
         if hasattr(self, "key"):
             key = getattr(self, "key")
 

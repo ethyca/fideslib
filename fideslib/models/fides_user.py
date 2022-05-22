@@ -11,8 +11,8 @@ from fideslib.db.base_class import Base
 from fideslib.models.audit_log import AuditLog
 
 
-class FidesUser(Base):  # type: ignore
-    """The DB ORM model for FidesUser"""
+class FidesUser(Base):
+    """The DB ORM model for FidesUser."""
 
     username = Column(String, unique=True, index=True)
     first_name = Column(String, nullable=True)
@@ -33,7 +33,7 @@ class FidesUser(Base):  # type: ignore
         primaryjoin="foreign(AuditLog.user_id)==FidesUser.id",
     )
 
-    client = relationship(
+    client = relationship(  # type: ignore
         "ClientDetail", backref="user", cascade="all, delete", uselist=False
     )
 
@@ -64,7 +64,7 @@ class FidesUser(Base):  # type: ignore
             },
         )
 
-        return user
+        return user  # type: ignore
 
     def credentials_valid(self, password: str, encoding: str = "UTF-8") -> bool:
         """Verifies that the provided password is correct."""

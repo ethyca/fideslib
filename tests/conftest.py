@@ -1,4 +1,4 @@
-# pylint: disable=C0116
+# pylint: disable=missing-function-docstring
 
 import logging
 import os
@@ -6,9 +6,16 @@ from pathlib import Path
 
 import pytest
 
+from fideslib.core.config import get_config
+
 logger = logging.getLogger(__name__)
 
 ROOT_PATH = Path().absolute()
+
+
+@pytest.fixture(scope="session")
+def config():
+    yield get_config()
 
 
 @pytest.fixture(autouse=True, scope="session")

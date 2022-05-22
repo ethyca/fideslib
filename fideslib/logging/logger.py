@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import logging
+from logging import LogRecord
 from numbers import Number
 from typing import Any, Mapping, Union
 
@@ -24,11 +24,11 @@ def get_fides_log_record_factory(log_pii: bool = True) -> Any:
         exc_info: Any,
         func: str = None,
         sinfo: str = None,
-    ) -> logging.LogRecord:
+    ) -> LogRecord:
         new_args = args
         if not log_pii:
             new_args = tuple(_mask_pii_for_logs(arg) for arg in args)
-        return logging.LogRecord(
+        return LogRecord(
             name=name,
             level=level,
             pathname=fn,

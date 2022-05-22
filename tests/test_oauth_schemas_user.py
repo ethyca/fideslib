@@ -1,4 +1,4 @@
-# pylint: disable=C0116
+# pylint: disable=missing-function-docstring
 
 import pytest
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY

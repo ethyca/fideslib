@@ -6,7 +6,7 @@ from fideslib.models.fides_user import FidesUser
 from fideslib.oauth.scopes import PRIVACY_REQUEST_READ
 
 
-class FidesUserPermissions(Base):  # type: ignore
+class FidesUserPermissions(Base):
     """The DB ORM model for FidesUserPermissions"""
 
     user_id = Column(String, ForeignKey(FidesUser.id), nullable=False, unique=True)

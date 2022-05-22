@@ -1,4 +1,4 @@
-# pylint: disable=C0116
+# pylint: disable=missing-function-docstring
 
 import os
 

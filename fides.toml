@@ -1,9 +1,16 @@
+# [database]
+# SERVER="db"
+# USER="postgres"
+# PASSWORD="216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a"
+# DB="app"
+# TEST_DB="test"
+
 [database]
-SERVER="db"
+SERVER="postgres_example"
 USER="postgres"
-PASSWORD="216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a"
-DB="app"
-TEST_DB="test"
+PASSWORD="postgres"
+DB="postgres_example"
+PORT= 5432
 
 [security]
 APP_ENCRYPTION_KEY="OLMkv91j8DHiDAULnK5Lxx3kSCov30b3"

@@ -66,9 +66,10 @@ addopts = [
 [tool.mypy]
 check_untyped_defs = true
 disallow_untyped_defs = true
+plugins = ["sqlmypy"]
 
 [[tool.mypy.overrides]]
-module = ["tests.*", "migrations.*"]
+module = ["tests.*"]
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
