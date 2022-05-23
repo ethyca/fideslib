@@ -87,14 +87,14 @@ class ClientDetail(Base):
         cls,
         db: Session,
         *,
-        client_id: Any,
+        object_id: Any,
         root_client_id: str | None = None,
         root_client_hash: tuple[str, str] | None = None,
     ) -> ClientDetail | None:
         """Fetch a database record via a client_id"""
-        if root_client_id and root_client_hash and client_id == root_client_id:
+        if root_client_id and root_client_hash and object_id == root_client_id:
             return _get_root_client_detail(root_client_id, root_client_hash)
-        return super().get(db, id=client_id)  # type: ignore
+        return super().get(db, id=object_id)  # type: ignore
 
     def create_access_code_jwe(self, encryption_key: str) -> str:
         """Generates a JWE from the client detail provided"""

@@ -115,9 +115,9 @@ class OrmWrappedFidesBase(FidesBase):
         ]
 
     @classmethod
-    def get(cls, db: Session, *, client_id: Any) -> FidesBase | None:
+    def get(cls, db: Session, *, object_id: Any) -> FidesBase | None:
         """Fetch a database record via a table ID"""
-        return db.query(cls).get(client_id)
+        return db.query(cls).get(object_id)
 
     @classmethod
     def get_by(
@@ -177,7 +177,7 @@ class OrmWrappedFidesBase(FidesBase):
         """Retrieves db object by id, if provided, otherwise attempts by key"""
         db_obj: FidesBase | list[FidesBase] | None = None
         if data.get("id") is not None:
-            db_obj = cls.get(db=db, client_id=data["id"])
+            db_obj = cls.get(db=db, object_id=data["id"])
         elif data.get("key") is not None:
             db_obj = cls.get_by(db=db, field="key", value=data["key"])
         return db_obj
