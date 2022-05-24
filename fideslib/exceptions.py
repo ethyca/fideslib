@@ -1,13 +1,12 @@
-from typing import List
+from __future__ import annotations
 
 from fastapi import HTTPException, status
 
 from fideslib.oauth.scopes import SCOPES
 
 
-class AuthenticationException(HTTPException):
-    """
-    To be raised when attempting to fetch an access token using
+class AuthenticationError(HTTPException):
+    """To be raised when attempting to fetch an access token using
     invalid credentials.
     """
 
@@ -18,9 +17,8 @@ class AuthenticationException(HTTPException):
         )
 
 
-class AuthorizationException(HTTPException):
-    """
-    To be raised when attempting to perform an action for which
+class AuthorizationError(HTTPException):
+    """To be raised when attempting to perform an action for which
     the token does not have the required scope assigned.
     """
 
@@ -31,10 +29,8 @@ class AuthorizationException(HTTPException):
         )
 
 
-class ClientWriteFailedException(HTTPException):
-    """
-    To be raised when a client cannot be created.
-    """
+class ClientWriteFailedError(HTTPException):
+    """To be raised when a client cannot be created."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -43,10 +39,8 @@ class ClientWriteFailedException(HTTPException):
         )
 
 
-class ClientNotFoundException(HTTPException):
-    """
-    To be raised when attempting to fetch a client that does not exist.
-    """
+class ClientNotFoundError(HTTPException):
+    """To be raised when attempting to fetch a client that does not exist."""
 
     def __init__(self, client_id: str) -> None:
         super().__init__(
@@ -58,10 +52,8 @@ class ClientNotFoundException(HTTPException):
         )
 
 
-class ExpiredTokenException(HTTPException):
-    """
-    To be raised when a provided token is expired.
-    """
+class ExpiredTokenError(HTTPException):
+    """To be raised when a provided token is expired."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -70,13 +62,12 @@ class ExpiredTokenException(HTTPException):
         )
 
 
-class InvalidAuthorizationSchemeException(HTTPException):
-    """
-    To be raised when attempting to authenticate with an unexpected
+class InvalidAuthorizationSchemeError(HTTPException):
+    """To be raised when attempting to authenticate with an unexpected
     Authorization header value.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Failed to authenticate",
@@ -84,12 +75,10 @@ class InvalidAuthorizationSchemeException(HTTPException):
         )
 
 
-class InvalidScopeException(HTTPException):
-    """
-    To be raised when a provided scope does not exist.
-    """
+class InvalidScopeError(HTTPException):
+    """To be raised when a provided scope does not exist."""
 
-    def __init__(self, invalid_scopes: List[str]) -> None:
+    def __init__(self, invalid_scopes: list[str]) -> None:
         SCOPES.sort()
 
         super().__init__(
@@ -100,3 +89,17 @@ class InvalidScopeException(HTTPException):
                 "valid_scopes": SCOPES,
             },
         )
+
+
+class KeyOrNameAlreadyExists(Exception):
+    """A resource already exists with this key or name."""
+
+
+class KeyValidationError(Exception):
+    """The resource you're trying to create has a key specified but not
+    a name specified.
+    """
+
+
+class MissingConfig(Exception):
+    """Custom exception for when no valid configuration file is provided."""

@@ -15,14 +15,7 @@ def read_requirements(filename: str) -> List[str]:
 
 # Requirements and Dependencies
 dev_requires = read_requirements("dev-requirements.txt")
-cryptography_requires = read_requirements("fideslib/cryptography/requirements.txt")
-oauth_requires = read_requirements("fideslib/oauth/requirements.txt")
-
-extras = {
-    "cryptography": cryptography_requires,
-    "oauth": oauth_requires,
-}
-extras["all"] = sum([value for _, value in extras.items()], [])
+install_requires = read_requirements("requirements.txt")
 
 setup(
     name="fideslib",
@@ -48,5 +41,5 @@ setup(
     package_dir={"": "fideslib"},
     python_requires=">=3.8, <4",
     dev_requires=dev_requires,
-    extras_require=extras,
+    install_requires=install_requires,
 )

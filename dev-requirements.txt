@@ -1,6 +1,8 @@
-black==21.8b0
-mypy==0.910
-pylint==2.6.0
-pytest==6.2.2
-pytest-cov==2.11.1
-xenon==0.7.3
+black >= 21.8b0
+mypy >= 0.910
+pylint >= 2.6.0
+pytest >= 6.2.2
+pytest-cov >= 2.11.1
+sqlalchemy-stubs >= 0.4
+types-SQLAlchemy >= 1.4.34
+xenon >= 0.7.3

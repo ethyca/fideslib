@@ -33,7 +33,7 @@ build:
 ####################
 
 black:
-	@$(RUN) black --check fideslib
+	@$(RUN) black --check fideslib tests
 
 # The order of dependent targets here is intentional
 check-all: build check-install black pylint mypy xenon pytest
@@ -43,13 +43,10 @@ check-install:
 	@$(RUN) python -c "import fideslib; from fideslib import oauth"
 
 mypy:
-	@$(RUN) mypy \
-	--ignore-missing-imports \
-	--exclude fideslib/oauth/database/client_detail_model.py \
-	fideslib
+	@$(RUN) mypy .
 
 pylint:
-	@$(RUN) pylint fideslib
+	@$(RUN) pylint fideslib tests
 
 pytest:
 	@$(RUN) pytest

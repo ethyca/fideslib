@@ -5,7 +5,6 @@ requires = ["setuptools", "wheel"]
 # Black
 #######
 [tool.black]
-py39 = true
 line-length = 88
 include = '\.pyi?$'
 exclude = '''
@@ -27,6 +26,8 @@ exclude = '''
 [tool.pylint.messages_control]
 disable=[
   "invalid-name",
+  "line-too-long",
+  "missing-class-docstring",
   "missing-module-docstring",
   "too-few-public-methods",
   "too-many-arguments",
@@ -56,5 +57,21 @@ addopts = [
   "--cov-report=term-missing",
   "-vv",
   "--no-cov-on-fail",
-  "--disable-pytest-warnings",
 ]
+
+#######
+# MyPy
+#######
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
+plugins = ["sqlmypy"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["jose.*", "setuptools.*", "sqlalchemy_utils.*"]
+ignore_missing_imports = true
