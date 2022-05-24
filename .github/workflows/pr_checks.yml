@@ -3,34 +3,34 @@ name: PR Checks
 on:
   push:
     branches:
-      - main
+    - main
   pull_request:
 
 jobs:
   Linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.8"
-          cache: "pip"
-      - name: Install Dependencies
-        run: |
-          pip install -U pip
-          pip install -r dev-requirements.txt
-          pip install -r requirements.txt
-          pip install -e .
-      - name: Black check
-        run: black --check fideslib tests
-      - name: MyPy check
-        run: mypy .
-      - name: pylint check
-        run: pylint fideslib tests
-      - name: Xenon check
-        run: |
-          xenon fideslib --max-absolute B --max-modules B --max-average A
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+        cache: "pip"
+    - name: Install Dependencies
+      run: |
+        pip install -U pip
+        pip install -r dev-requirements.txt
+        pip install -r requirements.txt
+        pip install -e .
+    - name: Black check
+      run: black --check fideslib tests
+    - name: MyPy check
+      run: mypy .
+    - name: pylint check
+      run: pylint fideslib tests
+    - name: Xenon check
+      run: |
+        xenon fideslib --max-absolute B --max-modules B --max-average A
 
   Testing:
     strategy:
@@ -39,16 +39,16 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-      - name: Install Dependencies
-          pip install -U pip
-          pip install -r dev-requirements.txt
-          pip install -r requirements.txt
-          pip install -e .
-      - name: Run test suite
-        run: pytest
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
+    - name: Install Dependencies
+        pip install -U pip
+        pip install -r dev-requirements.txt
+        pip install -r requirements.txt
+        pip install -e .
+    - name: Run test suite
+      run: pytest
