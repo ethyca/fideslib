@@ -46,6 +46,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: "pip"
     - name: Install Dependencies
+      run: |
         pip install -U pip
         pip install -r dev-requirements.txt
         pip install -r requirements.txt
