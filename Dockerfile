@@ -4,10 +4,14 @@ FROM --platform=linux/amd64 python:3.8-slim-buster
 # Tool Installation ##
 ######################
 
-RUN apt-get update
-RUN apt-get install -y \
-    git \
-    vim
+RUN : \
+  && apt-get update \
+  && apt-get install \
+  -y --no-install-recommends \
+  git \
+  vim \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 #######################
 ## Application Setup ##
