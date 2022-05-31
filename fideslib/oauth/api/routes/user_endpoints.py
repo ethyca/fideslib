@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_pagination import Page, Params
@@ -106,7 +106,7 @@ def delete_user(
 def get_user(*, db: Session = Depends(get_db), user_id: str) -> FidesUser:
     """Returns a User based on an Id"""
     logger.info("Returned a User based on Id")
-    user: FidesUser | None = FidesUser.get_by_key_or_id(db, data={"id": user_id})
+    user: Union[FidesUser, None] = FidesUser.get_by_key_or_id(db, data={"id": user_id})
     if user is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="User not found")
 
@@ -146,7 +146,7 @@ def user_login(
 ) -> UserLoginResponse:
     """Login the user by creating a client if it doesn't exist, and have that client
     generate a token."""
-    user: FidesUser | None = FidesUser.get_by(
+    user: Union[FidesUser, None] = FidesUser.get_by(
         db, field="username", value=user_data.username
     )
 
