@@ -23,6 +23,7 @@ from fideslib.models.fides_user import FidesUser
 from fideslib.oauth.jwt import generate_jwe
 from fideslib.oauth.scopes import SCOPES
 
+ADMIN_UI_ROOT = "admin_ui_root"
 DEFAULT_SCOPES: list[str] = []
 
 
@@ -94,7 +95,7 @@ class ClientDetail(Base):
         """Fetch a database record via a client_id"""
         if root_client_id and root_client_hash and object_id == root_client_id:
             return _get_root_client_detail(root_client_id, root_client_hash)
-        return super().get(db, id=object_id)  # type: ignore
+        return super().get(db, object_id=object_id)
 
     def create_access_code_jwe(self, encryption_key: str) -> str:
         """Generates a JWE from the client detail provided"""
@@ -107,7 +108,7 @@ class ClientDetail(Base):
         return generate_jwe(json.dumps(payload), encryption_key)
 
     def credentials_valid(self, provided_secret: str, encoding: str = "UTF-8") -> bool:
-        """Verifies that the provided secret is correct"""
+        """Verifies that the provided secret is correct."""
         provided_secret_hash = hash_with_salt(
             provided_secret.encode(encoding),
             self.salt.encode(encoding),

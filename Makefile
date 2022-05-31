@@ -49,7 +49,10 @@ pylint:
 	@$(RUN) pylint fideslib tests
 
 pytest:
-	@$(RUN) pytest
+	@docker-compose up -d
+	@sleep 2
+	pytest
+	@docker-compose down
 
 xenon:
 	@$(RUN) xenon fideslib \

@@ -10,23 +10,19 @@ class AuthenticationError(HTTPException):
     invalid credentials.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, detail: str) -> None:
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or invalid credentials",
+            detail=detail,
         )
 
 
 class AuthorizationError(HTTPException):
-    """To be raised when attempting to perform an action for which
-    the token does not have the required scope assigned.
-    """
+    """Throws an HTTP 403"""
 
-    def __init__(self) -> None:
-        super().__init__(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient permissions to perform this action",
-        )
+    def __init__(self, detail: str) -> None:
+        """Override the regular HTTPException throwing only a 403"""
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
 
 
 class ClientWriteFailedError(HTTPException):

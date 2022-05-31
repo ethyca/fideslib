@@ -55,7 +55,6 @@ log_level = "DEBUG"
 addopts = [
   "--cov=fideslib",
   "--cov-report=term-missing",
-  "-vv",
   "--no-cov-on-fail",
 ]
 

@@ -4,6 +4,7 @@ from typing import Optional
 
 from pydantic import validator
 
+from fideslib.oauth.schemas.oauth import AccessToken
 from fideslib.schemas.base_class import BaseSchema
 
 
@@ -71,6 +72,13 @@ class UserResponse(BaseSchema):
     created_at: datetime
     first_name: Optional[str]
     last_name: Optional[str]
+
+
+class UserLoginResponse(BaseSchema):
+    """Similar to UserResponse except with an access token"""
+
+    user_data: UserResponse
+    token_data: AccessToken
 
 
 class UserUpdate(BaseSchema):
