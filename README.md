@@ -8,17 +8,58 @@
 
 ## Installation
 
-1. Add `fideslib` to the `requirements.txt` (or equivalent) file:
+```console
+pip install fideslib
+```
 
-    ```
-    fideslib==1.0.0
-    ```
 
-1. Within the project's virtual environment, install the required dependencies with the `pip install` command:
+## Usage
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+### Config
+
+Examples here will assume a project structure of `src/my_project` where `my_project` is
+the root module.
+
+To use the default config settings create a module and file to store the config. In
+this example we will use `src/my_project/core/config.py`.
+
+
+```py
+from fideslib.core.config import get_config
+
+config = get_config()
+```
+
+Then the config can be used in other files by importing `config`.
+
+```py
+from my_project.core.config import config
+```
+
+The default config can be overridden by extending the settings classes. With the same
+setup as above, in the `src/my_project/core/config.py` file:
+
+```py
+from fideslib.core.config import DatabaseSettings, FidesSettings, get_config
+
+
+class ExtendedDataBaseSettings(DatabaseSettings):
+    extra_field: str 
+
+    class Config:
+        env_prefix = "FIDESOPS__DATABASE__"
+
+
+class ExtendedFidesSettings(FidesSettings):
+    database: ExtendedDataBaseSettings
+
+
+config = get_config(ExtendedDataBaseSettings)  # pass the name of the custom settings class here
+```
+
+Now the resulting `config.database` will contain the extra `extra_field` field and
+`ExtendedDataBaseSettings` will look for environment variables with
+`FIDESOBS__DATABASE__`.
 
 ## Contributing
 
