@@ -8,6 +8,8 @@ on:
 
 jobs:
   Linting:
+    strategy:
+      fail-fast: false
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -22,6 +24,8 @@ jobs:
         pip install -r dev-requirements.txt
         pip install -r requirements.txt
         pip install -e .
+    - name: iSort
+      run: isort --check-only fideslib tests
     - name: Black check
       run: black --check fideslib tests
     - name: MyPy check

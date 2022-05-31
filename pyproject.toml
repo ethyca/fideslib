@@ -20,6 +20,14 @@ exclude = '''
 )/
 '''
 
+#######
+# isort
+#######
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["fideslib", "tests"]
+
 ########
 # Pylint
 ########
