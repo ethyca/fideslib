@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring, redefined-outer-name
+
 from copy import deepcopy
 
 import pytest

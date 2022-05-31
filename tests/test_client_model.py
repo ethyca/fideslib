@@ -24,7 +24,7 @@ def test_create_client_and_secret(db, config):
     )
 
 
-def test_get_client(db, config, oauth_client):
+def test_get_client(db, oauth_client):
     client = ClientDetail.get(db, object_id=oauth_client.id)
     assert client
     assert client.id == oauth_client.id

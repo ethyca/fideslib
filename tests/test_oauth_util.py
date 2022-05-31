@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring, redefined-outer-name
+# pylint: disable=duplicate-code, missing-function-docstring, redefined-outer-name
 
 import json
 from datetime import datetime
@@ -58,7 +58,7 @@ def test_verify_oauth_client_no_issued_at(db, config, user):
     )
     with pytest.raises(AuthorizationError):
         verify_oauth_client(
-            SecurityScopes(USER_READ),
+            SecurityScopes([USER_READ]),
             token,
             db=db,
             token_duration_min=1,
