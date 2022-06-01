@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Type, TypeVar
 from uuid import uuid4
 
 from fideslang.models import FidesKey  # type: ignore
@@ -15,6 +15,7 @@ from sqlalchemy.sql import func
 from fideslib.exceptions import KeyOrNameAlreadyExists, KeyValidationError
 from fideslib.utils.text import to_snake_case
 
+T = TypeVar("T", bound="OrmWrappedFidesBase")
 ALLOWED_CHARS = re.compile(r"[A-z0-9\-_]")
 
 
@@ -107,7 +108,7 @@ class OrmWrappedFidesBase(FidesBase):
 
     @classmethod
     def get_optional_field_names(cls) -> list[str]:
-        """Returns the names of all nullable fields on the wrapped model"""
+        """Returns the names of all nullable fields on the wrapped model."""
         return [
             field.name
             for field in list(cls.__table__.columns)  # type: ignore # pylint: disable=E1101
@@ -115,40 +116,40 @@ class OrmWrappedFidesBase(FidesBase):
         ]
 
     @classmethod
-    def get(cls, db: Session, *, object_id: Any) -> FidesBase | None:
-        """Fetch a database record via a table ID"""
+    def get(cls: Type[T], db: Session, *, object_id: Any) -> T | None:
+        """Fetch a database record via a table ID."""
         return db.query(cls).get(object_id)
 
     @classmethod
     def get_by(
-        cls,
+        cls: Type[T],
         db: Session,
         *,
         field: str,
         value: str | int,
-    ) -> list[FidesBase]:
-        """Fetch a database record via a dynamic key, supplied at call time"""
+    ) -> T | None:
+        """Fetch a database record via a dynamic key, supplied at call time."""
         kwargs = {field: value}
-        return db.query(cls).filter_by(**kwargs).first()  # type: ignore
+        return db.query(cls).filter_by(**kwargs).first()
 
     @classmethod
-    def query(cls, db: Session) -> Query:
-        """Create a blank query for the class"""
+    def query(cls: Type[T], db: Session) -> Query:
+        """Create a blank query for the class."""
         return db.query(cls)
 
     @classmethod
-    def all(cls, db: Session) -> list[OrmWrappedFidesBase]:
-        """Fetch all database records in table"""
+    def all(cls: Type[T], db: Session) -> list[T]:
+        """Fetch all database records in table."""
         return db.query(cls).all()
 
     @classmethod
-    def filter(cls, db: Session, *, conditions: list[Any]) -> Query:
-        """Fetch multiple models from a database table"""
+    def filter(cls: Type[T], db: Session, *, conditions: list[Any]) -> Query:
+        """Fetch multiple models from a database table."""
         return db.query(cls).filter(*conditions)
 
     @classmethod
-    def create(cls, db: Session, *, data: dict[str, Any]) -> FidesBase:
-        """Create a new row in the database"""
+    def create(cls: Type[T], db: Session, *, data: dict[str, Any]) -> T:
+        """Create a new row in the database."""
         # Build properly formatted key for applicable classes
         if hasattr(cls, "key"):
             data["key"] = get_key_from_data(data, cls.__name__)
@@ -172,10 +173,10 @@ class OrmWrappedFidesBase(FidesBase):
 
     @classmethod
     def get_by_key_or_id(
-        cls, db: Session, *, data: dict[str, Any]
-    ) -> FidesBase | list[FidesBase] | None:
-        """Retrieves db object by id, if provided, otherwise attempts by key"""
-        db_obj: FidesBase | list[FidesBase] | None = None
+        cls: Type[T], db: Session, *, data: dict[str, Any]
+    ) -> T | None:
+        """Retrieves db object by id, if provided, otherwise attempts by key."""
+        db_obj = None
         if data.get("id") is not None:
             db_obj = cls.get(db=db, object_id=data["id"])
         elif data.get("key") is not None:
@@ -183,9 +184,7 @@ class OrmWrappedFidesBase(FidesBase):
         return db_obj
 
     @classmethod
-    def create_or_update(
-        cls, db: Session, *, data: dict[str, Any]
-    ) -> FidesBase | list[FidesBase]:
+    def create_or_update(cls: Type[T], db: Session, *, data: dict[str, Any]) -> T:
         """Create an object, or update the existing version.
 
         There's an edge case where `data["id"]` and `data["key"]` can point attempt
@@ -203,9 +202,9 @@ class OrmWrappedFidesBase(FidesBase):
 
     @classmethod
     def get_or_create(
-        cls, db: Session, *, data: dict[str, Any]
-    ) -> tuple[bool, FidesBase | None]:
-        """Fetch an object, or create it if none is found"""
+        cls: Type[T], db: Session, *, data: dict[str, Any]
+    ) -> tuple[bool, T | None]:
+        """Fetch an object, or create it if none is found."""
         db_obj = db.query(cls).filter_by(**data).first()
         created = False
         if not db_obj:
@@ -215,14 +214,14 @@ class OrmWrappedFidesBase(FidesBase):
 
     @classmethod
     def update_with_class(
-        cls, db: Session, *, conditions: Any, values: dict[str, Any]
+        cls: Type[T], db: Session, *, conditions: Any, values: dict[str, Any]
     ) -> int:
-        """Update all objects within a filter at database level"""
+        """Update all objects within a filter at database level."""
         return db.query(cls).filter(conditions).update(values=values)
 
     @classmethod
-    def delete_with_class(cls, db: Session, *, id: str) -> FidesBase | None:
-        """Delete an existing row from the database from the object's class"""
+    def delete_with_class(cls: Type[T], db: Session, *, id: str) -> T | None:
+        """Delete an existing row from the database from the object's class."""
         obj = db.query(cls).get(id)
         if obj is None:
             return None
@@ -231,13 +230,13 @@ class OrmWrappedFidesBase(FidesBase):
         return obj
 
     @classmethod
-    def delete_all(cls, db: Session) -> int:
-        """Delete all rows in this table"""
+    def delete_all(cls: Type[T], db: Session) -> int:
+        """Delete all rows in this table."""
         deleted_count = db.query(cls).delete()
         return deleted_count
 
     def refresh_from_db(self, db: Session) -> FidesBase | None:
-        """Returns a current version of this object from the database"""
+        """Returns a current version of this object from the database."""
         return db.query(self.__class__).get(self.id)
 
     def update(self, db: Session, *, data: dict[str, Any]) -> FidesBase:
@@ -275,9 +274,9 @@ class OrmWrappedFidesBase(FidesBase):
         return OrmWrappedFidesBase.persist_obj(db, self)
 
     @classmethod
-    def persist_obj(cls, db: Session, resource: FidesBase) -> FidesBase:
+    def persist_obj(cls: Type[T], db: Session, resource: T) -> T:
         """Method to be run after 'create' or 'save' to write the resource to the db
-        Can be overridden on subclasses to not commit immediately whencreating
+        Can be overridden on subclasses to not commit immediately when creating
         creating/updating.
         """
         db.add(resource)

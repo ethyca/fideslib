@@ -55,5 +55,8 @@ jobs:
         pip install -r dev-requirements.txt
         pip install -r requirements.txt
         pip install -e .
+    - name: Start postgres
+      run: |
+        docker run --rm -d -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=test -p "0.0.0.0:5432:5432" postgres:12
     - name: Run test suite
       run: pytest

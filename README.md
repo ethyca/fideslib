@@ -44,7 +44,7 @@ from fideslib.core.config import DatabaseSettings, FidesSettings, get_config
 
 
 class ExtendedDataBaseSettings(DatabaseSettings):
-    extra_field: str 
+    extra_field: str
 
     class Config:
         env_prefix = "FIDESOPS__DATABASE__"

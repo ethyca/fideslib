@@ -6,11 +6,11 @@
 # TEST_DB="test"
 
 [database]
-SERVER="postgres_example"
+SERVER="localhost"
 USER="postgres"
 PASSWORD="postgres"
-DB="postgres_example"
-PORT= 5432
+DB="test"
+TEST_DB="test"
 
 [security]
 APP_ENCRYPTION_KEY="OLMkv91j8DHiDAULnK5Lxx3kSCov30b3"

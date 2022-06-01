@@ -19,10 +19,10 @@ class AccessToken(BaseModel):
 # NOTE: Adapted from
 #   https://github.com/tiangolo/fastapi/blob/master/fastapi/security/oauth2.py#L140
 class OAuth2ClientCredentialsBearer(OAuth2):
-    """
-    Requires a valid OAuth2 bearer token using the client credentials flow, e.g.
-    "Authorization: Bearer <token>". See /oauth/token for details on how to
-    authenticate and receive a valid token.
+    """Requires a valid OAuth2 bearer token using the client credentials flow, e.g.
+    "Authorization: Bearer <token>".
+
+    See /oauth/token for details on how to authenticate and receive a valid token.
     """
 
     def __init__(
@@ -49,7 +49,7 @@ class OAuth2ClientCredentialsBearer(OAuth2):
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
                 raise InvalidAuthorizationSchemeError()
-            return None
+            return None  # pragma: no cover
         return param
 
 
@@ -59,9 +59,7 @@ class OAuth2ClientCredentialsBearer(OAuth2):
 #   JSON to follow the
 # OAuth2 spec: https://datatracker.ietf.org/doc/html/rfc6749#section-4.4.2
 class OAuth2ClientCredentialsRequestForm:
-    """
-    Request model used to authenticate via OAuth2 client credentials
-    """
+    """Request model used to authenticate via OAuth2 client credentials."""
 
     def __init__(
         self,

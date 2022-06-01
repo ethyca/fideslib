@@ -1,12 +1,24 @@
-# pylint: disable=missing-function-docstring, redefined-outer-name
+# pylint: disable=duplicate-code, missing-function-docstring, redefined-outer-name
 
 import json
 from datetime import datetime
 
 import pytest
+from fastapi.security import SecurityScopes
 
+from fideslib.cryptography.schemas.jwt import (
+    JWE_ISSUED_AT,
+    JWE_PAYLOAD_CLIENT_ID,
+    JWE_PAYLOAD_SCOPES,
+)
+from fideslib.exceptions import AuthorizationError
 from fideslib.oauth.jwt import generate_jwe
-from fideslib.oauth.oauth_util import extract_payload, is_token_expired
+from fideslib.oauth.oauth_util import (
+    extract_payload,
+    is_token_expired,
+    verify_oauth_client,
+)
+from fideslib.oauth.scopes import USER_DELETE, USER_READ
 
 
 @pytest.fixture
@@ -31,3 +43,136 @@ def test_jwe_create_and_extract(encryption_key) -> None:
 )
 def test_is_token_expired(issued_at, token_duration_min, expected):
     assert is_token_expired(issued_at, token_duration_min) is expected
+
+
+def test_verify_oauth_client_no_issued_at(db, config, user):
+    payload = {
+        JWE_PAYLOAD_SCOPES: [USER_READ],
+        JWE_PAYLOAD_CLIENT_ID: user.client.id,
+        JWE_ISSUED_AT: None,
+        "token_duration_min": 1,
+    }
+    token = generate_jwe(
+        json.dumps(payload),
+        config.security.APP_ENCRYPTION_KEY,
+    )
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes([USER_READ]),
+            token,
+            db=db,
+            token_duration_min=1,
+            encryption_key=config.security.APP_ENCRYPTION_KEY,
+        )
+
+
+def test_verify_oauth_client_expired(db, config, user):
+    scope = [USER_READ]
+    payload = {
+        JWE_PAYLOAD_SCOPES: scope,
+        JWE_PAYLOAD_CLIENT_ID: user.client.id,
+        JWE_ISSUED_AT: datetime(2020, 1, 1).isoformat(),
+        "token_duration_min": 1,
+    }
+    token = generate_jwe(
+        json.dumps(payload),
+        config.security.APP_ENCRYPTION_KEY,
+    )
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes(scope),
+            token,
+            db=db,
+            token_duration_min=1,
+            encryption_key=config.security.APP_ENCRYPTION_KEY,
+        )
+
+
+def test_verify_oauth_client_no_client_id(db, config):
+    scope = [USER_READ]
+    payload = {
+        JWE_PAYLOAD_SCOPES: scope,
+        JWE_PAYLOAD_CLIENT_ID: None,
+        JWE_ISSUED_AT: datetime.now().isoformat(),
+        "token_duration_min": 60,
+    }
+    token = generate_jwe(
+        json.dumps(payload),
+        config.security.APP_ENCRYPTION_KEY,
+    )
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes(scope),
+            token,
+            db=db,
+            token_duration_min=1,
+            encryption_key=config.security.APP_ENCRYPTION_KEY,
+        )
+
+
+def test_verify_oauth_client_no_client(db, config, user):
+    scopes = [USER_READ]
+    payload = {
+        JWE_PAYLOAD_SCOPES: scopes,
+        JWE_PAYLOAD_CLIENT_ID: user.client.id,
+        JWE_ISSUED_AT: datetime.now().isoformat(),
+        "token_duration_min": 60,
+    }
+    token = generate_jwe(
+        json.dumps(payload),
+        config.security.APP_ENCRYPTION_KEY,
+    )
+    user.client.delete(db)
+    assert user.client is None
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes(scopes),
+            token,
+            db=db,
+            token_duration_min=1,
+            encryption_key=config.security.APP_ENCRYPTION_KEY,
+        )
+
+
+def test_verify_oauth_client_wrong_security_scope(db, config, user):
+    payload = {
+        JWE_PAYLOAD_SCOPES: [USER_DELETE],
+        JWE_PAYLOAD_CLIENT_ID: user.client.id,
+        JWE_ISSUED_AT: datetime.now().isoformat(),
+        "token_duration_min": 60,
+    }
+    token = generate_jwe(
+        json.dumps(payload),
+        config.security.APP_ENCRYPTION_KEY,
+    )
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes([USER_READ]),
+            token,
+            db=db,
+            token_duration_min=1,
+            encryption_key=config.security.APP_ENCRYPTION_KEY,
+        )
+
+
+def test_verify_oauth_client_wrong_client_scope(db, config, user):
+    scopes = [USER_READ]
+    payload = {
+        JWE_PAYLOAD_SCOPES: scopes,
+        JWE_PAYLOAD_CLIENT_ID: user.client.id,
+        JWE_ISSUED_AT: datetime.now().isoformat(),
+        "token_duration_min": 60,
+    }
+    token = generate_jwe(
+        json.dumps(payload),
+        config.security.APP_ENCRYPTION_KEY,
+    )
+    user.client.scopes = [USER_DELETE]
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes(scopes),
+            token,
+            db=db,
+            token_duration_min=1,
+            encryption_key=config.security.APP_ENCRYPTION_KEY,
+        )

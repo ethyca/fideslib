@@ -17,7 +17,6 @@ from pydantic import (
 from pydantic.env_settings import SettingsSourceCallable
 
 from fideslib.exceptions import MissingConfig
-from fideslib.logging.logger import NotPii
 
 logger = logging.getLogger(__name__)
 
@@ -194,9 +193,7 @@ def load_file(file_names: Union[List[Path], List[str]]) -> str:
         for file_name in file_names:
             possible_location = os.path.join(dir_str, file_name)
             if possible_location and os.path.isfile(possible_location):
-                logger.info(
-                    "Loading file %s from %s", NotPii(file_name), NotPii(dir_str)
-                )
+                logger.info("Loading file %s from %s", file_name, dir_str)
                 return possible_location
 
     raise FileNotFoundError
@@ -236,15 +233,15 @@ def get_config(
     except (FileNotFoundError, ValidationError) as e:
         if isinstance(file_names, list):
             if len(file_names) == 1:
-                logger.warning("%s could not be loaded: %s", file_names[0], NotPii(e))
+                logger.warning("%s could not be loaded: %s", file_names[0], e)
             else:
                 logger.warning(
                     "%s could not be loaded: %s",
                     " or ".join([str(x) for x in file_names]),
-                    NotPii(e),
+                    e,
                 )
         else:
-            logger.warning("%s could not be loaded: %s", file_names, NotPii(e))
+            logger.warning("%s could not be loaded: %s", file_names, e)
         # If no path is specified Pydantic will attempt to read settings from
         # the environment. Default values will still be used if the matching
         # environment variable is not set.
