@@ -51,9 +51,9 @@ router = APIRouter()
 )
 def create_user(*, db: Session = Depends(get_db), user_data: UserCreate) -> FidesUser:
     """Create a user given a username and password."""
-    user_exists = FidesUser.get_by(db, field="username", value=user_data.username)
+    user = FidesUser.get_by(db, field="username", value=user_data.username)
 
-    if user_exists:
+    if user:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST, detail="Username already exists."
         )

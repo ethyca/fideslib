@@ -276,7 +276,7 @@ class OrmWrappedFidesBase(FidesBase):
     @classmethod
     def persist_obj(cls: Type[T], db: Session, resource: T) -> T:
         """Method to be run after 'create' or 'save' to write the resource to the db
-        Can be overridden on subclasses to not commit immediately whencreating
+        Can be overridden on subclasses to not commit immediately when creating
         creating/updating.
         """
         db.add(resource)
