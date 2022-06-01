@@ -42,7 +42,7 @@ def config():
 @pytest.fixture
 def db(config):
     """Yield a connection to the test DB."""
-    # Create the test DB enginge
+    # Create the test DB engine
     assert config.is_test_mode
     engine = get_db_engine(
         database_uri=config.database.SQLALCHEMY_DATABASE_URI,
@@ -72,6 +72,7 @@ def env_vars():
 
 @pytest.fixture(scope="session")
 def client():
+    """Starlette test client to use in testing API routes."""
     app = FastAPI()
     app.include_router(router)
     with TestClient(app) as client:

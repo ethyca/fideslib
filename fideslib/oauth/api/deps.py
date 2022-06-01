@@ -35,7 +35,10 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def oauth2_scheme() -> OAuth2ClientCredentialsBearer:
-    """Creates the oauth2 scheme from the token."""
+    """Creates the oauth2 scheme from the token.
+
+    This should be overridden by the installing package.
+    """
     return OAuth2ClientCredentialsBearer(tokenUrl=TOKEN)
 
 

@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_pagination import Page, Params
@@ -105,11 +105,11 @@ def delete_user(
 )
 def get_user(*, db: Session = Depends(get_db), user_id: str) -> FidesUser:
     """Returns a User based on an Id"""
-    logger.info("Returned a User based on Id")
-    user: Union[FidesUser, None] = FidesUser.get_by_key_or_id(db, data={"id": user_id})
+    user: Optional[FidesUser] = FidesUser.get_by_key_or_id(db, data={"id": user_id})
     if user is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="User not found")
 
+    logger.info("Returning user with id: '%s'.", user_id)
     return user
 
 
@@ -125,10 +125,11 @@ def get_users(
     username: Optional[str] = None,
 ) -> AbstractPage[FidesUser]:
     """Returns a paginated list of all users"""
-    logger.info("Returned a paginated list of all users.")
     query = FidesUser.query(db)
     if username:
         query = query.filter(FidesUser.username.ilike(f"%{escape_like(username)}%"))
+
+    logger.info("Returning a paginated list of users.")
 
     return paginate(query.order_by(FidesUser.created_at.desc()), params=params)
 
@@ -146,7 +147,7 @@ def user_login(
 ) -> UserLoginResponse:
     """Login the user by creating a client if it doesn't exist, and have that client
     generate a token."""
-    user: Union[FidesUser, None] = FidesUser.get_by(
+    user: Optional[FidesUser] = FidesUser.get_by(
         db, field="username", value=user_data.username
     )
 

@@ -133,17 +133,17 @@ class OrmWrappedFidesBase(FidesBase):
         return db.query(cls).filter_by(**kwargs).first()
 
     @classmethod
-    def query(cls, db: Session) -> Query:
+    def query(cls: Type[T], db: Session) -> Query:
         """Create a blank query for the class."""
         return db.query(cls)
 
     @classmethod
-    def all(cls, db: Session) -> list[OrmWrappedFidesBase]:
+    def all(cls: Type[T], db: Session) -> list[T]:
         """Fetch all database records in table."""
         return db.query(cls).all()
 
     @classmethod
-    def filter(cls, db: Session, *, conditions: list[Any]) -> Query:
+    def filter(cls: Type[T], db: Session, *, conditions: list[Any]) -> Query:
         """Fetch multiple models from a database table."""
         return db.query(cls).filter(*conditions)
 
@@ -184,9 +184,7 @@ class OrmWrappedFidesBase(FidesBase):
         return db_obj
 
     @classmethod
-    def create_or_update(
-        cls: Type[T], db: Session, *, data: dict[str, Any]
-    ) -> T | list[FidesBase]:
+    def create_or_update(cls: Type[T], db: Session, *, data: dict[str, Any]) -> T:
         """Create an object, or update the existing version.
 
         There's an edge case where `data["id"]` and `data["key"]` can point attempt
@@ -216,7 +214,7 @@ class OrmWrappedFidesBase(FidesBase):
 
     @classmethod
     def update_with_class(
-        cls, db: Session, *, conditions: Any, values: dict[str, Any]
+        cls: Type[T], db: Session, *, conditions: Any, values: dict[str, Any]
     ) -> int:
         """Update all objects within a filter at database level."""
         return db.query(cls).filter(conditions).update(values=values)
@@ -232,7 +230,7 @@ class OrmWrappedFidesBase(FidesBase):
         return obj
 
     @classmethod
-    def delete_all(cls, db: Session) -> int:
+    def delete_all(cls: Type[T], db: Session) -> int:
         """Delete all rows in this table."""
         deleted_count = db.query(cls).delete()
         return deleted_count
