@@ -1,3 +1,5 @@
+# pylint: disable=consider-using-with, unspecified-encoding
+
 from typing import List
 
 from setuptools import setup

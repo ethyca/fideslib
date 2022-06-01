@@ -32,7 +32,10 @@ build:
 # CI
 ####################
 
-black:
+isort-ci:
+	@$(RUN) isort --check-only fideslib tests
+
+black-ci:
 	@$(RUN) black --check fideslib tests
 
 # The order of dependent targets here is intentional
@@ -63,6 +66,14 @@ xenon:
 ####################
 # Utils
 ####################
+
+.PHONY: isort
+isort:
+	@$(RUN) isort fideslib tests
+
+.PHONY: black
+black:
+	@$(RUN) black fideslib tests
 
 .PHONY: clean
 clean:

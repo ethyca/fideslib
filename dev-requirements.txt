@@ -1,6 +1,8 @@
 black >= 21.8b0
 coverage >= 6.4.0
+isort >= 5.10.1
 mypy >= 0.910
+pre-commit >= 2.19.0
 pylint >= 2.6.0
 pytest >= 6.2.2
 pytest-cov >= 2.11.1
