@@ -6,9 +6,7 @@ from setuptools import setup
 
 
 def read_requirements(filename: str) -> List[str]:
-    """
-    Returns the contents of a requirements file, as a list.
-    """
+    """Returns the contents of a requirements file, as a list."""
 
     with open(filename, "r") as file:
         requirements = file.read().strip().split("\n")
