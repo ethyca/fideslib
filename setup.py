@@ -2,7 +2,7 @@
 
 from typing import List
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 def read_requirements(filename: str) -> List[str]:
@@ -19,7 +19,7 @@ install_requires = read_requirements("requirements.txt")
 
 setup(
     name="fideslib",
-    version="2.0.1",
+    version="2.0.2",
     description="Shared libraries, for use in any fides project.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -38,7 +38,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries",
     ],
-    package_dir={"": "fideslib"},
+    packages=find_packages(exclude=("tests*",)),
     python_requires=">=3.8, <4",
     dev_requires=dev_requires,
     install_requires=install_requires,
