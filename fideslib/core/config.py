@@ -101,9 +101,11 @@ class SecuritySettings(FidesSettings):
     def validate_encryption_key_length(
         cls, v: Optional[str], values: Dict[str, str]
     ) -> Optional[str]:
-        """Validate the encryption key is exactly 32 bytes"""
+        """Validate the encryption key is exactly 32 characters"""
         if v is None or len(v.encode(values.get("ENCODING", "UTF-8"))) != 32:
-            raise ValueError("APP_ENCRYPTION_KEY value must be exactly 32 bytes long")
+            raise ValueError(
+                "APP_ENCRYPTION_KEY value must be exactly 32 characters long"
+            )
         return v
 
     CORS_ORIGINS: List[AnyHttpUrl] = []
@@ -227,10 +229,9 @@ def get_config(
     - home directory
     This will fail on the first encountered bad conf file.
     """
-
     try:
         return class_name.parse_obj(load_toml(file_names))
-    except (FileNotFoundError, ValidationError) as e:
+    except (FileNotFoundError) as e:
         if isinstance(file_names, list):
             if len(file_names) == 1:
                 logger.warning("%s could not be loaded: %s", file_names[0], e)
