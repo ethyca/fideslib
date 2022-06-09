@@ -142,7 +142,7 @@ class SecuritySettings(FidesSettings):
                 "OAUTH_ROOT_CLIENT_SECRET is required", SecuritySettings
             )
 
-        encoding = values["ENCODING"]
+        encoding = values.get("ENCODING", "UTF-8")
 
         salt = bcrypt.gensalt()
         hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
