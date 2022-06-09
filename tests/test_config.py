@@ -1,6 +1,7 @@
 # pylint: disable=missing-function-docstring, redefined-outer-name
 
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -13,6 +14,8 @@ from fideslib.core.config import (
 )
 from fideslib.exceptions import MissingConfig
 
+ROOT_PATH = Path().absolute()
+
 
 @pytest.fixture
 def config_dict(fides_toml_path):
@@ -22,7 +25,7 @@ def config_dict(fides_toml_path):
 @patch.dict(
     os.environ,
     {
-        "FIDES__CONFIG_PATH": "tests/assets",
+        "FIDES__CONFIG_PATH": str(ROOT_PATH / "tests" / "assets"),
     },
     clear=True,
 )
