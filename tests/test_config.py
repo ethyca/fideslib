@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 
 from fideslib.core.config import (
     DatabaseSettings,
@@ -15,6 +16,37 @@ from fideslib.core.config import (
 from fideslib.exceptions import MissingConfig
 
 ROOT_PATH = Path().absolute()
+
+
+def test_config_app_encryption_key_validation() -> None:
+    app_encryption_key = "atestencryptionkeythatisvalidlen"
+    with patch.dict(
+        os.environ,
+        {
+            "FIDES__SECURITY__APP_ENCRYPTION_KEY": app_encryption_key,
+        },
+        clear=True,
+    ):
+        config = get_config()
+        assert config.security.APP_ENCRYPTION_KEY == app_encryption_key
+
+
+@pytest.mark.parametrize(
+    "app_encryption_key",
+    ["tooshortkey", "muchmuchmuchmuchmuchmuchmuchmuchtoolongkey"],
+)
+def test_config_app_encryption_key_validation_error(app_encryption_key) -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "FIDES__SECURITY__APP_ENCRYPTION_KEY": app_encryption_key,
+        },
+        clear=True,
+    ):
+        with pytest.raises(ValidationError) as exc:
+            get_config()
+
+        assert "must be exactly 32 characters" in str(exc.value)
 
 
 @pytest.fixture
