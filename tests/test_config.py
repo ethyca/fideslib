@@ -1,6 +1,7 @@
 # pylint: disable=missing-function-docstring, redefined-outer-name
 
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -13,6 +14,8 @@ from fideslib.core.config import (
     load_toml,
 )
 from fideslib.exceptions import MissingConfig
+
+ROOT_PATH = Path().absolute()
 
 
 def test_config_app_encryption_key_validation() -> None:
@@ -49,6 +52,20 @@ def test_config_app_encryption_key_validation_error(app_encryption_key) -> None:
 @pytest.fixture
 def config_dict(fides_toml_path):
     yield load_toml([fides_toml_path])
+
+
+@patch.dict(
+    os.environ,
+    {
+        "FIDES__CONFIG_PATH": str(ROOT_PATH / "tests" / "assets"),
+    },
+    clear=True,
+)
+def test_config_from_path() -> None:
+    """Test reading config using the FIDESOPS__CONFIG_PATH option."""
+    config = get_config()
+    assert config.database.SERVER == "testserver"
+    assert config.security.APP_ENCRYPTION_KEY == "atestencryptionkeythatisvalidlen"
 
 
 def test_database_settings_sqlalchemy_database_uri_str(config_dict):
