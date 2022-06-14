@@ -176,6 +176,7 @@ def load_file(file_names: Union[List[Path], List[str]]) -> str:
     - A path set at ENV variable FIDES__CONFIG_PATH
     - The current directory
     - The parent directory
+    - Two directories up for the current directory
     - The parent_directory/.fides
     - users home (~) directory
     raises FileNotFound if none is found
@@ -185,6 +186,7 @@ def load_file(file_names: Union[List[Path], List[str]]) -> str:
         os.getenv("FIDES__CONFIG_PATH"),
         os.curdir,
         os.pardir,
+        os.path.abspath(os.path.join(os.curdir, "..", "..")),
         os.path.join(os.pardir, ".fides"),
         os.path.expanduser("~"),
     ]
