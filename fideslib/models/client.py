@@ -21,7 +21,6 @@ from fideslib.cryptography.schemas.jwt import (
 from fideslib.db.base_class import Base
 from fideslib.models.fides_user import FidesUser
 from fideslib.oauth.jwt import generate_jwe
-from fideslib.oauth.scopes import SCOPES
 
 ADMIN_UI_ROOT = "admin_ui_root"
 DEFAULT_SCOPES: list[str] = []
@@ -91,10 +90,11 @@ class ClientDetail(Base):
         object_id: Any,
         root_client_id: str | None = None,
         root_client_hash: tuple[str, str] | None = None,
+        scopes: list[str] | None = None,
     ) -> ClientDetail | None:
         """Fetch a database record via a client_id"""
-        if root_client_id and root_client_hash and object_id == root_client_id:
-            return _get_root_client_detail(root_client_id, root_client_hash)
+        if object_id == root_client_id:
+            return _get_root_client_detail(root_client_id, root_client_hash, scopes)
         return super().get(db, object_id=object_id)
 
     def create_access_code_jwe(self, encryption_key: str) -> str:
@@ -118,14 +118,20 @@ class ClientDetail(Base):
 
 
 def _get_root_client_detail(
-    root_client_id: str, root_client_hash: tuple | None = None, encoding: str = "UTF-8"
+    root_client_id: str,
+    root_client_hash: tuple | None = None,
+    scopes: list[str] | None = None,
+    encoding: str = "UTF-8",
 ) -> ClientDetail | None:
     if not root_client_hash:
         raise ValueError("A root client hash is required")
+
+    if not scopes:
+        raise ValueError("Scopes are required")
 
     return ClientDetail(
         id=root_client_id,
         hashed_secret=root_client_hash[0],
         salt=root_client_hash[1].decode(encoding),
-        scopes=SCOPES,
+        scopes=scopes,
     )

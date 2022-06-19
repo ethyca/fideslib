@@ -38,6 +38,7 @@ def test_get_client_root_client(db, config):
         object_id="fidesadmin",
         root_client_id=config.security.OAUTH_ROOT_CLIENT_ID,
         root_client_hash=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH,
+        scopes=SCOPES,
     )
     assert client
     assert client.id == config.security.OAUTH_ROOT_CLIENT_ID
@@ -49,6 +50,7 @@ def test_credentials_valid(db, config):
         db,
         config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
         config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        scopes=SCOPES,
     )
 
     assert new_client.credentials_valid("this-is-not-the-right-secret") is False
@@ -57,4 +59,9 @@ def test_credentials_valid(db, config):
 
 def test_get_root_client_detail_no_root_client_hash():
     with pytest.raises(ValueError):
-        _get_root_client_detail("test", None)
+        _get_root_client_detail("test", None, SCOPES)
+
+
+def test_get_root_client_detail_no_scopes(config):
+    with pytest.raises(ValueError):
+        _get_root_client_detail("test", config.security.OAUTH_ROOT_CLIENT_SECRET_HASH)
