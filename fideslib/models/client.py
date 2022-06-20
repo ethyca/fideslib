@@ -8,6 +8,7 @@ from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Session
 
+from fideslib.core.config import FidesConfig
 from fideslib.cryptography.cryptographic_util import (
     generate_salt,
     generate_secure_random_string,
@@ -83,18 +84,17 @@ class ClientDetail(Base):
         return client, secret  # type: ignore
 
     @classmethod
-    def get(
+    def get(  # type: ignore
         cls,
         db: Session,
         *,
         object_id: Any,
-        root_client_id: str | None = None,
-        root_client_hash: tuple[str, str] | None = None,
+        config: FidesConfig,
         scopes: list[str] | None = None,
     ) -> ClientDetail | None:
         """Fetch a database record via a client_id"""
-        if object_id == root_client_id:
-            return _get_root_client_detail(root_client_id, root_client_hash, scopes)
+        if object_id == config.security.OAUTH_ROOT_CLIENT_ID:
+            return _get_root_client_detail(config, scopes)
         return super().get(db, object_id=object_id)
 
     def create_access_code_jwe(self, encryption_key: str) -> str:
@@ -118,20 +118,19 @@ class ClientDetail(Base):
 
 
 def _get_root_client_detail(
-    root_client_id: str,
-    root_client_hash: tuple | None = None,
+    config: FidesConfig,
     scopes: list[str] | None = None,
     encoding: str = "UTF-8",
 ) -> ClientDetail | None:
-    if not root_client_hash:
+    if not config.security.OAUTH_ROOT_CLIENT_SECRET_HASH:
         raise ValueError("A root client hash is required")
 
     if not scopes:
         raise ValueError("Scopes are required")
 
     return ClientDetail(
-        id=root_client_id,
-        hashed_secret=root_client_hash[0],
-        salt=root_client_hash[1].decode(encoding),
+        id=config.security.OAUTH_ROOT_CLIENT_ID,
+        hashed_secret=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[0],
+        salt=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[1].decode(encoding),
         scopes=scopes,
     )
