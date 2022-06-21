@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_db_engine(
-    config: FidesConfig,
+    *,
+    config: FidesConfig | None = None,
     database_uri: str | URL | None = None,
 ) -> Engine:
     """Return a database engine.
@@ -22,8 +23,11 @@ def get_db_engine(
     If the TESTING environment var is set the database engine returned will be
     connected to the test DB.
     """
-    if database_uri is None:
-        # Don't override any database_uri explicity passed in
+    if config is None and database_uri is None:
+        raise ValueError("Either a config or database_uri is required")
+
+    if database_uri is None and config is not None:
+        # Don't override any database_uri explicitly passed in
         if config.is_test_mode:
             database_uri = config.database.SQLALCHEMY_TEST_DATABASE_URI
         else:
@@ -44,7 +48,7 @@ def get_db_session(
     return sessionmaker(
         autocommit=autocommit,
         autoflush=autoflush,
-        bind=engine or get_db_engine(config),
+        bind=engine or get_db_engine(config=config),
         class_=ExtendedSession,
     )
 
