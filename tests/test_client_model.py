@@ -46,6 +46,11 @@ def test_get_client_root_client(db, config):
     assert client.scopes == SCOPES
 
 
+def test_get_client_root_client_no_scopes(db, config):
+    with pytest.raises(ValueError):
+        ClientDetail.get(db, object_id="fidesadmin", config=config)
+
+
 def test_credentials_valid(db, config):
     new_client, secret = ClientDetail.create_client_and_secret(
         db,
@@ -63,8 +68,3 @@ def test_get_root_client_detail_no_root_client_hash(config):
     test_config.security.OAUTH_ROOT_CLIENT_SECRET_HASH = None
     with pytest.raises(ValueError):
         _get_root_client_detail(test_config, SCOPES)
-
-
-def test_get_root_client_detail_no_scopes(config):
-    with pytest.raises(ValueError):
-        _get_root_client_detail(config)
