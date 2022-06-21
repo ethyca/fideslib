@@ -13,8 +13,21 @@ from fideslib.exceptions import MissingConfig
 logger = logging.getLogger(__name__)
 
 
-def get_db_engine(database_uri: str | URL) -> Engine:
-    """Return a database engine."""
+def get_db_engine(
+    config: FidesConfig,
+    database_uri: str | URL | None = None,
+) -> Engine:
+    """Return a database engine.
+
+    If the TESTING environment var is set the database engine returned will be
+    connected to the test DB.
+    """
+    if database_uri is None:
+        # Don't override any database_uri explicity passed in
+        if config.is_test_mode:
+            database_uri = config.database.SQLALCHEMY_TEST_DATABASE_URI
+        else:
+            database_uri = config.database.SQLALCHEMY_DATABASE_URI
     return create_engine(database_uri, pool_pre_ping=True)
 
 
@@ -31,7 +44,7 @@ def get_db_session(
     return sessionmaker(
         autocommit=autocommit,
         autoflush=autoflush,
-        bind=engine or get_db_engine(config.database.SQLALCHEMY_DATABASE_URI),
+        bind=engine or get_db_engine(config),
         class_=ExtendedSession,
     )
 

@@ -45,6 +45,7 @@ def db(config):
     # Create the test DB engine
     assert config.is_test_mode
     engine = get_db_engine(
+        config,
         database_uri=config.database.SQLALCHEMY_DATABASE_URI,
     )
 
