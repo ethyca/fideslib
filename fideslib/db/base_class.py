@@ -143,7 +143,7 @@ class OrmWrappedFidesBase(FidesBase):
         return db.query(cls).all()
 
     @classmethod
-    def filter(cls: Type[T], db: Session, *, conditions: list[Any]) -> Query:
+    def filter(cls: Type[T], db: Session, *, conditions: Any) -> Query:
         """Fetch multiple models from a database table."""
         return db.query(cls).filter(*conditions)
 
