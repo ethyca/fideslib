@@ -11,6 +11,7 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import Query, Session
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import BinaryExpression, BooleanClauseList
 
 from fideslib.exceptions import KeyOrNameAlreadyExists, KeyValidationError
 from fideslib.utils.text import to_snake_case
@@ -143,9 +144,11 @@ class OrmWrappedFidesBase(FidesBase):
         return db.query(cls).all()
 
     @classmethod
-    def filter(cls: Type[T], db: Session, *, conditions: Any) -> Query:
+    def filter(
+        cls: Type[T], db: Session, *, conditions: BinaryExpression | BooleanClauseList
+    ) -> Query:
         """Fetch multiple models from a database table."""
-        return db.query(cls).filter(*conditions)
+        return db.query(cls).filter(conditions)
 
     @classmethod
     def create(cls: Type[T], db: Session, *, data: dict[str, Any]) -> T:
