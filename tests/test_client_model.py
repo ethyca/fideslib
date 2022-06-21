@@ -1,5 +1,7 @@
 # pylint: disable=missing-function-docstring
 
+from copy import deepcopy
+
 import pytest
 
 from fideslib.cryptography.cryptographic_util import hash_with_salt
@@ -24,8 +26,8 @@ def test_create_client_and_secret(db, config):
     )
 
 
-def test_get_client(db, oauth_client):
-    client = ClientDetail.get(db, object_id=oauth_client.id)
+def test_get_client(db, oauth_client, config):
+    client = ClientDetail.get(db, object_id=oauth_client.id, config=config)
     assert client
     assert client.id == oauth_client.id
     assert client.scopes == SCOPES
@@ -36,12 +38,17 @@ def test_get_client_root_client(db, config):
     client = ClientDetail.get(
         db,
         object_id="fidesadmin",
-        root_client_id=config.security.OAUTH_ROOT_CLIENT_ID,
-        root_client_hash=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH,
+        config=config,
+        scopes=SCOPES,
     )
     assert client
     assert client.id == config.security.OAUTH_ROOT_CLIENT_ID
     assert client.scopes == SCOPES
+
+
+def test_get_client_root_client_no_scopes(db, config):
+    with pytest.raises(ValueError):
+        ClientDetail.get(db, object_id="fidesadmin", config=config)
 
 
 def test_credentials_valid(db, config):
@@ -49,12 +56,15 @@ def test_credentials_valid(db, config):
         db,
         config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
         config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        scopes=SCOPES,
     )
 
     assert new_client.credentials_valid("this-is-not-the-right-secret") is False
     assert new_client.credentials_valid(secret) is True
 
 
-def test_get_root_client_detail_no_root_client_hash():
+def test_get_root_client_detail_no_root_client_hash(config):
+    test_config = deepcopy(config)
+    test_config.security.OAUTH_ROOT_CLIENT_SECRET_HASH = None
     with pytest.raises(ValueError):
-        _get_root_client_detail("test", None)
+        _get_root_client_detail(test_config, SCOPES)

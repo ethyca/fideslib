@@ -7,6 +7,7 @@ from fastapi.security import SecurityScopes
 from jose import jwe
 from sqlalchemy.orm import Session
 
+from fideslib.core.config import FidesConfig
 from fideslib.cryptography.schemas.jwt import (
     JWE_ISSUED_AT,
     JWE_PAYLOAD_CLIENT_ID,
@@ -34,21 +35,25 @@ def verify_oauth_client(
     authorization: str,
     *,
     db: Session,
-    token_duration_min: int,
-    encryption_key: str,
+    config: FidesConfig,
 ) -> ClientDetail:
     """Verifies that the access token provided in the authorization header contains
     the necessary scopes specified by the caller.
 
     Raises a 403 forbidden error if not.
     """
-    token_data = json.loads(extract_payload(authorization, encryption_key))
+    token_data = json.loads(
+        extract_payload(authorization, config.security.APP_ENCRYPTION_KEY)
+    )
 
     issued_at = token_data.get(JWE_ISSUED_AT, None)
     if not issued_at:
         raise AuthorizationError(detail="Not Authorized for this action")
 
-    if is_token_expired(datetime.fromisoformat(issued_at), token_duration_min):
+    if is_token_expired(
+        datetime.fromisoformat(issued_at),
+        config.security.OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES,
+    ):
         raise AuthorizationError(detail="Not Authorized for this action")
 
     assigned_scopes = token_data[JWE_PAYLOAD_SCOPES]
@@ -59,7 +64,9 @@ def verify_oauth_client(
     if not client_id:
         raise AuthorizationError(detail="Not Authorized for this action")
 
-    client = ClientDetail.get(db, object_id=client_id)
+    client = ClientDetail.get(
+        db, object_id=client_id, config=config, scopes=security_scopes.scopes
+    )
     if not client:
         raise AuthorizationError(detail="Not Authorized for this action")
 

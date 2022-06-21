@@ -61,8 +61,7 @@ def test_verify_oauth_client_no_issued_at(db, config, user):
             SecurityScopes([USER_READ]),
             token,
             db=db,
-            token_duration_min=1,
-            encryption_key=config.security.APP_ENCRYPTION_KEY,
+            config=config,
         )
 
 
@@ -83,8 +82,7 @@ def test_verify_oauth_client_expired(db, config, user):
             SecurityScopes(scope),
             token,
             db=db,
-            token_duration_min=1,
-            encryption_key=config.security.APP_ENCRYPTION_KEY,
+            config=config,
         )
 
 
@@ -105,8 +103,7 @@ def test_verify_oauth_client_no_client_id(db, config):
             SecurityScopes(scope),
             token,
             db=db,
-            token_duration_min=1,
-            encryption_key=config.security.APP_ENCRYPTION_KEY,
+            config=config,
         )
 
 
@@ -125,13 +122,7 @@ def test_verify_oauth_client_no_client(db, config, user):
     user.client.delete(db)
     assert user.client is None
     with pytest.raises(AuthorizationError):
-        verify_oauth_client(
-            SecurityScopes(scopes),
-            token,
-            db=db,
-            token_duration_min=1,
-            encryption_key=config.security.APP_ENCRYPTION_KEY,
-        )
+        verify_oauth_client(SecurityScopes(scopes), token, db=db, config=config)
 
 
 def test_verify_oauth_client_wrong_security_scope(db, config, user):
@@ -146,13 +137,7 @@ def test_verify_oauth_client_wrong_security_scope(db, config, user):
         config.security.APP_ENCRYPTION_KEY,
     )
     with pytest.raises(AuthorizationError):
-        verify_oauth_client(
-            SecurityScopes([USER_READ]),
-            token,
-            db=db,
-            token_duration_min=1,
-            encryption_key=config.security.APP_ENCRYPTION_KEY,
-        )
+        verify_oauth_client(SecurityScopes([USER_READ]), token, db=db, config=config)
 
 
 def test_verify_oauth_client_wrong_client_scope(db, config, user):
@@ -173,6 +158,5 @@ def test_verify_oauth_client_wrong_client_scope(db, config, user):
             SecurityScopes(scopes),
             token,
             db=db,
-            token_duration_min=1,
-            encryption_key=config.security.APP_ENCRYPTION_KEY,
+            config=config,
         )

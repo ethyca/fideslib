@@ -8,6 +8,7 @@ from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Session
 
+from fideslib.core.config import FidesConfig
 from fideslib.cryptography.cryptographic_util import (
     generate_salt,
     generate_secure_random_string,
@@ -21,7 +22,6 @@ from fideslib.cryptography.schemas.jwt import (
 from fideslib.db.base_class import Base
 from fideslib.models.fides_user import FidesUser
 from fideslib.oauth.jwt import generate_jwe
-from fideslib.oauth.scopes import SCOPES
 
 ADMIN_UI_ROOT = "admin_ui_root"
 DEFAULT_SCOPES: list[str] = []
@@ -84,17 +84,21 @@ class ClientDetail(Base):
         return client, secret  # type: ignore
 
     @classmethod
-    def get(
+    def get(  # type: ignore
         cls,
         db: Session,
         *,
         object_id: Any,
-        root_client_id: str | None = None,
-        root_client_hash: tuple[str, str] | None = None,
+        config: FidesConfig,
+        scopes: list[str] | None = None,
     ) -> ClientDetail | None:
         """Fetch a database record via a client_id"""
-        if root_client_id and root_client_hash and object_id == root_client_id:
-            return _get_root_client_detail(root_client_id, root_client_hash)
+        if object_id == config.security.OAUTH_ROOT_CLIENT_ID:
+            if not scopes:
+                raise ValueError(
+                    "Scopes are required when using the OAUTH_ROOT_CLIENT_ID"
+                )
+            return _get_root_client_detail(config, scopes)
         return super().get(db, object_id=object_id)
 
     def create_access_code_jwe(self, encryption_key: str) -> str:
@@ -118,14 +122,16 @@ class ClientDetail(Base):
 
 
 def _get_root_client_detail(
-    root_client_id: str, root_client_hash: tuple | None = None, encoding: str = "UTF-8"
+    config: FidesConfig,
+    scopes: list[str],
+    encoding: str = "UTF-8",
 ) -> ClientDetail | None:
-    if not root_client_hash:
+    if not config.security.OAUTH_ROOT_CLIENT_SECRET_HASH:
         raise ValueError("A root client hash is required")
 
     return ClientDetail(
-        id=root_client_id,
-        hashed_secret=root_client_hash[0],
-        salt=root_client_hash[1].decode(encoding),
-        scopes=SCOPES,
+        id=config.security.OAUTH_ROOT_CLIENT_ID,
+        hashed_secret=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[0],
+        salt=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[1].decode(encoding),
+        scopes=scopes,
     )

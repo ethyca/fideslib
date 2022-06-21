@@ -53,10 +53,4 @@ def verify_oauth_client(
     by the installing library.
     """
     config = core_get_config()
-    return verify(
-        security_scopes,
-        authorization,
-        db=db,
-        token_duration_min=config.security.OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES,
-        encryption_key=config.security.APP_ENCRYPTION_KEY,
-    )
+    return verify(security_scopes, authorization, db=db, config=config)
