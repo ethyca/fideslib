@@ -80,5 +80,5 @@ module = ["tests.*"]
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
-module = ["jose.*", "setuptools.*", "sqlalchemy_utils.*"]
+module = ["jose.*", "setuptools.*", "sqlalchemy_utils.*", "validators.*"]
 ignore_missing_imports = true

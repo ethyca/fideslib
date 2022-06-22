@@ -6,8 +6,8 @@ from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
 import bcrypt
 import tomli
+import validators
 from pydantic import (
-    AnyHttpUrl,
     BaseSettings,
     PostgresDsn,
     ValidationError,
@@ -108,15 +108,27 @@ class SecuritySettings(FidesSettings):
             )
         return v
 
-    CORS_ORIGINS: List[AnyHttpUrl] = []
+    CORS_ORIGINS: List[str] = []
 
     @validator("CORS_ORIGINS", pre=True)
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         """Return a list of valid origins for CORS requests"""
+
+        def validate(values: List[str]) -> None:
+            for value in values:
+                if value != "*":
+                    if not validators.url(value):
+                        raise ValueError(f"{value} is not a valid url")
+
         if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
+            values = [i.strip() for i in v.split(",")]
+            validate(values)
+
+            return values
         if isinstance(v, (list, str)):
+            validate(v)  # type: ignore
+
             return v
         raise ValueError(v)
 

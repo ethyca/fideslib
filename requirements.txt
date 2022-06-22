@@ -9,3 +9,4 @@ SQLAlchemy >= 1.4.14
 SQLAlchemy-Utils >= 0.37.8
 tomli >= 1.2.3
 Unidecode >= 1.2.0
+validators >= 0.20.0

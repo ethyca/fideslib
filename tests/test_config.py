@@ -126,3 +126,47 @@ def test_security_missing_oauth_root_client_secret(config_dict):
 
     with pytest.raises(MissingConfig):
         SecuritySettings.parse_obj(config_dict["security"])
+
+
+@pytest.mark.parametrize(
+    "cors_origins, expected",
+    [
+        ("*", ["*"]),
+        ("http://localhost", ["http://localhost"]),
+        (["*"], ["*"]),
+        (
+            [
+                "https://localhost",
+                "http://localhost:8080",
+                "http://localhost:3000",
+                "http://localhost:3001",
+            ],
+            [
+                "https://localhost",
+                "http://localhost:8080",
+                "http://localhost:3000",
+                "http://localhost:3001",
+            ],
+        ),
+    ],
+)
+def tests_cors_origins(cors_origins, expected, config_dict):
+    config_dict["security"]["CORS_ORIGINS"] = cors_origins
+    settings = SecuritySettings.parse_obj(config_dict["security"])
+
+    assert settings.CORS_ORIGINS == expected
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "im_bad",
+        "localhost.com",
+        "http://local host.com",
+        "no://localhost.com",
+    ],
+)
+def test_cors_origins_invalid(url, config_dict):
+    config_dict["security"]["CORS_ORIGINS"] = url
+    with pytest.raises(ValueError):
+        SecuritySettings.parse_obj(config_dict["security"])
