@@ -19,7 +19,7 @@ install_requires = read_requirements("requirements.txt")
 
 setup(
     name="fideslib",
-    version="2.0.4",
+    version="2.1.0",
     description="Shared libraries, for use in any fides project.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
