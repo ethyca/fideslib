@@ -173,9 +173,9 @@ class FidesConfig(FidesSettings):
     database: DatabaseSettings
     security: SecuritySettings
 
-    is_test_mode: bool = os.getenv("TESTING") == "True"
-    hot_reloading: bool = os.getenv("FIDES__HOT_RELOAD") == "True"
-    dev_mode: bool = os.getenv("FIDES__DEV_MODE") == "True"
+    is_test_mode: bool = os.getenv("TESTING", "").lower() == "true"
+    hot_reloading: bool = os.getenv("FIDES__HOT_RELOAD", "").lower() == "true"
+    dev_mode: bool = os.getenv("FIDES__DEV_MODE", "").lower() == "true"
 
     class Config:
         case_sensitive = True
