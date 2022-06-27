@@ -18,6 +18,7 @@ RUN_IT = docker run \
 # Dev
 ####################
 
+.PHONY: fideslib
 fideslib: build
 	@$(RUN_IT)
 
@@ -25,6 +26,7 @@ fideslib: build
 # Docker
 ####################
 
+.PHONY: build
 build:
 	docker build --tag $(IMAGE) .
 

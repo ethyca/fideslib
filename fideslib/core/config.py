@@ -9,6 +9,7 @@ import tomli
 import validators
 from pydantic import (
     BaseSettings,
+    Extra,
     PostgresDsn,
     ValidationError,
     root_validator,
@@ -26,7 +27,7 @@ class FidesSettings(BaseSettings):
 
     class Config:
         # Need to allow extras because the inheriting class will have more info
-        extras = "allow"
+        extra = Extra.allow
 
         @classmethod
         def customise_sources(
