@@ -4,6 +4,7 @@ from typing import Optional
 
 from pydantic import validator
 
+from fideslib.cryptography.cryptographic_util import b64_str_to_str
 from fideslib.oauth.schemas.oauth import AccessToken
 from fideslib.schemas.base_class import BaseSchema
 
@@ -35,18 +36,19 @@ class UserCreate(BaseSchema):
     @classmethod
     def validate_password(cls, password: str) -> str:
         """Add some password requirements"""
-        if len(password) < 8:
+        decoded_password = b64_str_to_str(password)
+        if len(decoded_password) < 8:
             raise ValueError("Password must have at least eight characters.")
-        if re.search("[0-9]", password) is None:
+        if re.search("[0-9]", decoded_password) is None:
             raise ValueError("Password must have at least one number.")
-        if re.search("[A-Z]", password) is None:
+        if re.search("[A-Z]", decoded_password) is None:
             raise ValueError("Password must have at least one capital letter.")
-        if re.search("[a-z]", password) is None:
+        if re.search("[a-z]", decoded_password) is None:
             raise ValueError("Password must have at least one lowercase letter.")
-        if re.search(r"[\W]", password) is None:
+        if re.search(r"[\W]", decoded_password) is None:
             raise ValueError("Password must have at least one symbol.")
 
-        return password
+        return decoded_password
 
 
 class UserCreateResponse(BaseSchema):
@@ -62,6 +64,12 @@ class UserLogin(BaseSchema):
 
     username: str
     password: str
+
+    @validator("password")
+    @classmethod
+    def validate_password(cls, password: str) -> str:
+        """Convert b64 encoded password to normal string"""
+        return b64_str_to_str(password)
 
 
 class UserResponse(BaseSchema):

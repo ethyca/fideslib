@@ -16,6 +16,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
+from fideslib.cryptography.cryptographic_util import str_to_b64_str
 from fideslib.cryptography.schemas.jwt import (
     JWE_ISSUED_AT,
     JWE_PAYLOAD_CLIENT_ID,
@@ -42,11 +43,11 @@ page_size = Params().size
     [
         {
             "username": "user",
-            "password": "Password1!",
+            "password": str_to_b64_str("Password1!"),
         },
         {
             "username": "test_user",
-            "password": "TestP@ssword9",
+            "password": str_to_b64_str("TestP@ssword9"),
             "first_name": "Test",
             "last_name": "User",
         },
@@ -79,7 +80,7 @@ def test_create_user_bad_password(
     client,
     auth_header,
 ) -> None:
-    body = {"username": "test_user", "password": password}
+    body = {"username": "test_user", "password": str_to_b64_str(password)}
     response = client.post(USERS, headers=auth_header, json=body)
     assert HTTP_422_UNPROCESSABLE_ENTITY == response.status_code
     assert message in response.json()["detail"][0]["msg"]
@@ -91,7 +92,7 @@ def test_create_user_bad_username(
     client,
     auth_header,
 ) -> None:
-    body = {"username": "spaces in name", "password": "TestP@ssword9"}
+    body = {"username": "spaces in name", "password": str_to_b64_str("TestP@ssword9")}
 
     response = client.post(USERS, headers=auth_header, json=body)
     assert response.status_code == HTTP_422_UNPROCESSABLE_ENTITY
@@ -108,7 +109,7 @@ def test_create_user_username_exists(
     client,
     auth_header,
 ) -> None:
-    body = {"username": "test_user", "password": "TestP@ssword9"}
+    body = {"username": "test_user", "password": str_to_b64_str("TestP@ssword9")}
     FidesUser.create(db=db, data=body)
 
     response = client.post(USERS, headers=auth_header, json=body)
@@ -148,7 +149,7 @@ def test_delete_self(client, db, config):
         db=db,
         data={
             "username": "test_delete_user",
-            "password": "TESTdcnG@wzJeu0&%3Qe2fGo7",
+            "password": str_to_b64_str("TESTdcnG@wzJeu0&%3Qe2fGo7"),
         },
     )
     saved_user_id = user.id
@@ -200,7 +201,7 @@ def test_delete_user_as_root(client, db, user, config):
         db=db,
         data={
             "username": "test_delete_user",
-            "password": "TESTdcnG@wzJeu0&%3Qe2fGo7",
+            "password": str_to_b64_str("TESTdcnG@wzJeu0&%3Qe2fGo7"),
         },
     )
 
@@ -290,7 +291,7 @@ def test_get_users(client, auth_header, db):
     for i in range(total_users):
         body = {
             "username": f"user{i}@example.com",
-            "password": "Password123!",
+            "password": str_to_b64_str("Password123!"),
             "first_name": "Test",
             "last_name": "User",
         }
@@ -319,7 +320,10 @@ def test_get_filtered_users(client, auth_header, db):
     saved_users = []
     total_users = 50
     for i in range(total_users):
-        body = {"username": f"user{i}@example.com", "password": "Password123!"}
+        body = {
+            "username": f"user{i}@example.com",
+            "password": str_to_b64_str("Password123!"),
+        }
         response = client.post(USERS, headers=auth_header, json=body)
         assert response.status_code == HTTP_201_CREATED
         user = FidesUser.get_by(db, field="username", value=body["username"])
@@ -381,14 +385,20 @@ def test_get_user(client, auth_header, application_user):
 
 @pytest.mark.usefixtures("db")
 def test_login_user_does_not_exist(client):
-    body = {"username": "does not exist", "password": "idonotknowmypassword"}
+    body = {
+        "username": "does not exist",
+        "password": str_to_b64_str("idonotknowmypassword"),
+    }
     response = client.post(LOGIN, headers={}, json=body)
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
 @pytest.mark.usefixtures("db")
 def test_bad_login(user, client):
-    body = {"username": user.username, "password": "idonotknowmypassword"}
+    body = {
+        "username": user.username,
+        "password": str_to_b64_str("idonotknowmypassword"),
+    }
     response = client.post(LOGIN, headers={}, json=body)
     assert response.status_code == HTTP_403_FORBIDDEN
 
@@ -397,9 +407,13 @@ def test_login_creates_client(db, user, client, config):
     user.client.delete(db)
     assert user.client is None
     assert user.permissions is not None
-    body = {"username": user.username, "password": "TESTdcnG@wzJeu0&%3Qe2fGo7"}
+    body = {
+        "username": user.username,
+        "password": str_to_b64_str("TESTdcnG@wzJeu0&%3Qe2fGo7"),
+    }
     response = client.post(LOGIN, headers={}, json=body)
     db.refresh(user)
+    print(response.json())
 
     assert response.status_code == HTTP_200_OK
     assert user.client is not None
@@ -412,7 +426,10 @@ def test_login_creates_client(db, user, client, config):
 
 
 def test_login_updates_last_login_date(db, user, client):
-    body = {"username": user.username, "password": "TESTdcnG@wzJeu0&%3Qe2fGo7"}
+    body = {
+        "username": user.username,
+        "password": str_to_b64_str("TESTdcnG@wzJeu0&%3Qe2fGo7"),
+    }
 
     response = client.post(LOGIN, headers={}, json=body)
     assert response.status_code == HTTP_200_OK
@@ -422,7 +439,10 @@ def test_login_updates_last_login_date(db, user, client):
 
 
 def test_login_uses_existing_client(db, user, client, config):
-    body = {"username": user.username, "password": "TESTdcnG@wzJeu0&%3Qe2fGo7"}
+    body = {
+        "username": user.username,
+        "password": str_to_b64_str("TESTdcnG@wzJeu0&%3Qe2fGo7"),
+    }
 
     existing_client_id = user.client.id
     user.client.scopes = [PRIVACY_REQUEST_READ]

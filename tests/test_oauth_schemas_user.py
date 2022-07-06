@@ -2,6 +2,7 @@
 
 import pytest
 
+from fideslib.cryptography.cryptographic_util import str_to_b64_str
 from fideslib.oauth.schemas.user import UserCreate
 
 
@@ -18,7 +19,10 @@ from fideslib.oauth.schemas.user import UserCreate
 def test_bad_password(password, message):
     with pytest.raises(ValueError) as excinfo:
         UserCreate(
-            username="test", password=password, first_name="test", last_name="test"
+            username="test",
+            password=str_to_b64_str(password),
+            first_name="test",
+            last_name="test",
         )
 
     assert message in str(excinfo.value)

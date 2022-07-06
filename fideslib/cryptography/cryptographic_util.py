@@ -32,3 +32,13 @@ def bytes_to_b64_str(bytestring: bytes, encoding: str = "UTF-8") -> str:
 def b64_str_to_bytes(encoded_str: str, encoding: str = "UTF-8") -> bytes:
     """Converts encoded string into bytes"""
     return b64decode(encoded_str.encode(encoding))
+
+
+def b64_str_to_str(encoded_str: str, encoding: str = "UTF-8") -> str:
+    """Converts encoded string into str"""
+    return b64decode(encoded_str).decode(encoding)
+
+
+def str_to_b64_str(string: str, encoding: str = "UTF-8") -> str:
+    """Converts str into a utf-8 encoded string"""
+    return b64encode(string.encode(encoding)).decode(encoding)
