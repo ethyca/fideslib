@@ -81,6 +81,13 @@ class UserLoginResponse(BaseSchema):
     token_data: AccessToken
 
 
+class UserPasswordReset(BaseSchema):
+    """Contains both old and new passwords when resetting a password"""
+
+    old_password: str
+    new_password: str
+
+
 class UserUpdate(BaseSchema):
     """Data required to update a FidesopsUser"""
 
