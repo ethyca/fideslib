@@ -94,10 +94,6 @@ class ClientDetail(Base):
     ) -> ClientDetail | None:
         """Fetch a database record via a client_id"""
         if object_id == config.security.OAUTH_ROOT_CLIENT_ID:
-            if not scopes:
-                raise ValueError(
-                    "Scopes are required when using the OAUTH_ROOT_CLIENT_ID"
-                )
             return _get_root_client_detail(config, scopes)
         return super().get(db, object_id=object_id)
 
@@ -123,15 +119,22 @@ class ClientDetail(Base):
 
 def _get_root_client_detail(
     config: FidesConfig,
-    scopes: list[str],
+    scopes: list[str] | None,
     encoding: str = "UTF-8",
 ) -> ClientDetail | None:
     if not config.security.OAUTH_ROOT_CLIENT_SECRET_HASH:
         raise ValueError("A root client hash is required")
 
+    if scopes:
+        return ClientDetail(
+            id=config.security.OAUTH_ROOT_CLIENT_ID,
+            hashed_secret=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[0],
+            salt=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[1].decode(encoding),
+            scopes=scopes,
+        )
+
     return ClientDetail(
         id=config.security.OAUTH_ROOT_CLIENT_ID,
         hashed_secret=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[0],
         salt=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[1].decode(encoding),
-        scopes=scopes,
     )
