@@ -47,8 +47,9 @@ def test_get_client_root_client(db, config):
 
 
 def test_get_client_root_client_no_scopes(db, config):
-    with pytest.raises(ValueError):
-        ClientDetail.get(db, object_id="fidesadmin", config=config)
+    client_detail = ClientDetail.get(db, object_id="fidesadmin", config=config)
+    assert client_detail
+    assert client_detail.scopes is None
 
 
 def test_credentials_valid(db, config):
