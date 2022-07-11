@@ -3,7 +3,12 @@
 from unittest.mock import MagicMock
 
 from fideslib.models.fides_user_permissions import FidesUserPermissions
-from fideslib.oauth.scopes import PRIVACY_REQUEST_READ, USER_CREATE, USER_DELETE, USER_READ
+from fideslib.oauth.scopes import (
+    PRIVACY_REQUEST_READ,
+    USER_CREATE,
+    USER_DELETE,
+    USER_READ,
+)
 
 
 def test_create_user_permissions():
