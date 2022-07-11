@@ -1,5 +1,6 @@
 CONFIG = "config"
 CONNECTION = "connection"
+CONNECTION_TYPE = "connection_type"
 CLIENT = "client"
 CREATE = "create"
 CREATE_OR_UPDATE = "create_or_update"
@@ -12,6 +13,7 @@ PRIVACY_REQUEST = "privacy-request"
 READ = "read"
 RESUME = "resume"
 REVIEW = "review"
+RESET_PASSWORD = "reset-password"
 RULE = "rule"
 SAAS_CONFIG = "saas_config"
 SCOPE = "scope"
@@ -31,6 +33,9 @@ CLIENT_UPDATE = f"{CLIENT}:{UPDATE}"
 CONNECTION_CREATE_OR_UPDATE = f"{CONNECTION}:{CREATE_OR_UPDATE}"
 CONNECTION_DELETE = f"{CONNECTION}:{DELETE}"
 CONNECTION_READ = f"{CONNECTION}:{READ}"
+CONNECTION_AUTHORIZE = "connection:authorize"
+
+CONNECTION_TYPE_READ = f"{CONNECTION_TYPE}:{READ}"
 
 DATASET_CREATE_OR_UPDATE = f"{DATASET}:{CREATE_OR_UPDATE}"
 DATASET_DELETE = f"{DATASET}:{DELETE}"
@@ -64,6 +69,9 @@ STORAGE_READ = f"{STORAGE}:{READ}"
 USER_CREATE = f"{USER}:{CREATE}"
 USER_DELETE = f"{USER}:{DELETE}"
 USER_READ = f"{USER}:{READ}"
+USER_UPDATE = f"{USER}:{UPDATE}"
+USER_PASSWORD_RESET = f"{USER}:{RESET_PASSWORD}"
+
 
 USER_PERMISSION_CREATE = f"{USER_PERMISSION}:{CREATE}"
 USER_PERMISSION_UPDATE = f"{USER_PERMISSION}:{UPDATE}"
@@ -82,6 +90,8 @@ SCOPE_DOCS = {
     CONNECTION_CREATE_OR_UPDATE: "Create or modify connections",
     CONNECTION_DELETE: "Remove connections",
     CONNECTION_READ: "View connections",
+    CONNECTION_AUTHORIZE: "OAuth2 Authorization",
+    CONNECTION_TYPE_READ: "View types of connections",
     DATASET_CREATE_OR_UPDATE: "Create or modify datasets",
     DATASET_DELETE: "Delete datasets",
     DATASET_READ: "View datasets",
@@ -93,6 +103,7 @@ SCOPE_DOCS = {
     PRIVACY_REQUEST_DELETE: "Remove privacy requests",
     PRIVACY_REQUEST_READ: "View privacy requests",
     PRIVACY_REQUEST_REVIEW: "Review privacy requests",
+    RESET_PASSWORD: "Reset user password",
     RULE_CREATE_OR_UPDATE: "Create or update rules",
     RULE_DELETE: "Remove rules",
     RULE_READ: "View rules",
@@ -104,6 +115,7 @@ SCOPE_DOCS = {
     STORAGE_DELETE: "Remove storage",
     STORAGE_READ: "View storage",
     USER_CREATE: "Create users",
+    USER_UPDATE: "Update users",
     USER_DELETE: "Remove users",
     USER_READ: "View users",
     USER_PERMISSION_CREATE: "Create user permissions",

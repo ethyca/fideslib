@@ -1,8 +1,11 @@
+from typing import List
+
 from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
 
 from fideslib.db.base_class import Base
 from fideslib.models.fides_user import FidesUser
+from fideslib.oauth.privileges import privileges
 from fideslib.oauth.scopes import PRIVACY_REQUEST_READ
 
 
@@ -19,3 +22,13 @@ class FidesUserPermissions(Base):
         FidesUser,
         backref=backref("permissions", cascade="all,delete", uselist=False),
     )
+
+    @property
+    def privileges(self) -> List[str]:
+        """Return the big-picture privileges a user has based on their individual scopes"""
+        user_privileges: List[str] = []
+        for privilege, required_scopes in privileges.items():
+            if required_scopes.issubset(self.scopes):
+                user_privileges.append(privilege)
+
+        return user_privileges
