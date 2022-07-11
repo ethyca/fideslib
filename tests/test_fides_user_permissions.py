@@ -25,9 +25,21 @@ def test_create_user_permissions():
 def test_associated_privileges():
     permissions: FidesUserPermissions = FidesUserPermissions.create(  # type: ignore
         db=MagicMock(),
-        data={"user_id": "test", "scopes": [USER_CREATE, USER_READ, USER_DELETE, PRIVACY_REQUEST_READ]},
+        data={
+            "user_id": "test",
+            "scopes": [USER_CREATE, USER_READ, USER_DELETE, PRIVACY_REQUEST_READ],
+        },
     )
 
     assert permissions.user_id == "test"
-    assert permissions.scopes == [USER_CREATE, USER_READ, USER_DELETE, PRIVACY_REQUEST_READ]
-    assert permissions.privileges == ["view_subject_requests", "view_users", "manage_users"]
+    assert permissions.scopes == [
+        USER_CREATE,
+        USER_READ,
+        USER_DELETE,
+        PRIVACY_REQUEST_READ,
+    ]
+    assert permissions.privileges == [
+        "view_subject_requests",
+        "view_users",
+        "manage_users",
+    ]
