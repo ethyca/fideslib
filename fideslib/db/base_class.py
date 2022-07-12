@@ -13,11 +13,16 @@ from sqlalchemy.orm import Query, Session
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import BinaryExpression, BooleanClauseList
 
-from fideslib.exceptions import KeyOrNameAlreadyExists, KeyValidationError
+from fideslib.exceptions import (
+    KeyOrNameAlreadyExists,
+    KeyValidationError,
+    OverrideNotSupported,
+)
 from fideslib.utils.text import to_snake_case
 
 T = TypeVar("T", bound="OrmWrappedFidesBase")
 ALLOWED_CHARS = re.compile(r"[A-z0-9\-_]")
+INTERNAL_ID_FIELD_NAME = "id"
 
 
 def get_key_from_data(data: dict[str, Any], cls_name: str) -> str:
@@ -72,7 +77,7 @@ class FidesBase:
         specifications in the event we have overridden a model's
         __tablename__ attribute
         """
-        return f"{self.__tablename__}.id"
+        return f"{self.__tablename__}.{INTERNAL_ID_FIELD_NAME}"
 
     id = Column(String(255), primary_key=True, index=True, default=generate_uuid)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -154,6 +159,11 @@ class OrmWrappedFidesBase(FidesBase):
     def create(cls: Type[T], db: Session, *, data: dict[str, Any]) -> T:
         """Create a new row in the database."""
         # Build properly formatted key for applicable classes
+        if INTERNAL_ID_FIELD_NAME in data:
+            raise OverrideNotSupported(
+                f"Field {INTERNAL_ID_FIELD_NAME} must be automatically generated and can not be overridden."
+            )
+
         if hasattr(cls, "key"):
             data["key"] = get_key_from_data(data, cls.__name__)
             if db.query(cls).filter_by(key=data["key"]).first():
@@ -220,6 +230,10 @@ class OrmWrappedFidesBase(FidesBase):
         cls: Type[T], db: Session, *, conditions: Any, values: dict[str, Any]
     ) -> int:
         """Update all objects within a filter at database level."""
+        if INTERNAL_ID_FIELD_NAME in values:
+            raise OverrideNotSupported(
+                f"Field {INTERNAL_ID_FIELD_NAME} must be automatically generated and can not be overridden."
+            )
         return db.query(cls).filter(conditions).update(values=values)
 
     @classmethod
@@ -245,6 +259,11 @@ class OrmWrappedFidesBase(FidesBase):
     def update(self, db: Session, *, data: dict[str, Any]) -> FidesBase:
         """Update specific row with supplied values."""
         # Set self.key where applicable
+        if INTERNAL_ID_FIELD_NAME in data:
+            raise OverrideNotSupported(
+                f"Field {INTERNAL_ID_FIELD_NAME} must be automatically generated and can not be overridden."
+            )
+
         if hasattr(self, "key") and "key" in data:
             data["key"] = get_key_from_data(data, self.__class__.__name__)
 

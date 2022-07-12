@@ -91,6 +91,10 @@ class KeyOrNameAlreadyExists(Exception):
     """A resource already exists with this key or name."""
 
 
+class OverrideNotSupported(Exception):
+    """This variable cannot be overridden with user input."""
+
+
 class KeyValidationError(Exception):
     """The resource you're trying to create has a key specified but not
     a name specified.
