@@ -19,7 +19,7 @@ def test_create_user_permissions():
 
     assert permissions.user_id == "test"
     assert permissions.scopes == [PRIVACY_REQUEST_READ]
-    assert permissions.privileges == ["view_subject_requests"]
+    assert permissions.privileges == ("view_subject_requests",)
 
 
 def test_associated_privileges():
@@ -38,8 +38,8 @@ def test_associated_privileges():
         USER_DELETE,
         PRIVACY_REQUEST_READ,
     ]
-    assert permissions.privileges == [
+    assert permissions.privileges == (
         "view_subject_requests",
         "view_users",
         "manage_users",
-    ]
+    )

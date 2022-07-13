@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
@@ -24,11 +24,11 @@ class FidesUserPermissions(Base):
     )
 
     @property
-    def privileges(self) -> List[str]:
+    def privileges(self) -> Tuple[str, ...]:
         """Return the big-picture privileges a user has based on their individual scopes"""
         user_privileges: List[str] = []
         for privilege, required_scopes in privileges.items():
             if required_scopes.issubset(self.scopes):
                 user_privileges.append(privilege)
 
-        return user_privileges
+        return tuple(user_privileges)
