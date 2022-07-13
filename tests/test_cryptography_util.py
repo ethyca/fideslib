@@ -67,7 +67,7 @@ def test_generate_secure_random_string():
 
 def test_hash_with_salt(encoding: str = "UTF-8") -> None:
     plain_text = "This is Plaintext. Not hashed. or salted. or chopped. or grilled."
-    salt = '$2b$12$JpqVneuGhHBN62Gh/b0EP.'
+    salt = "$2b$12$JpqVneuGhHBN62Gh/b0EP."
 
     expected_hash = "243262243132244a7071566e6575476848424e363247682f623045502e626476724a63656c637274514e7450584d2e392e4d49647871507636337469"  # pylint: disable=C0301
     hashed = hash_with_salt(
