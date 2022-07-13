@@ -18,6 +18,7 @@ from pydantic import (
 from pydantic.env_settings import SettingsSourceCallable
 
 from fideslib.exceptions import MissingConfig
+from fideslib.cryptography.cryptographic_util import hash_with_salt, generate_salt
 
 logger = logging.getLogger(__name__)
 
@@ -159,9 +160,9 @@ class SecuritySettings(FidesSettings):
 
         encoding = values.get("ENCODING", "UTF-8")
 
-        salt = bcrypt.gensalt()
-        hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
-        values["OAUTH_ROOT_CLIENT_SECRET_HASH"] = (hashed_client_id, salt)  # type: ignore
+        salt = generate_salt()
+        hashed_client_id =hash_with_salt(value.encode(encoding),salt.encode(encoding))
+        values["OAUTH_ROOT_CLIENT_SECRET_HASH"] = (hashed_client_id, salt.encode(encoding))  # type: ignore
         return values
 
     class Config:
