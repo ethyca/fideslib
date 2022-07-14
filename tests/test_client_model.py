@@ -12,15 +12,15 @@ from fideslib.oauth.scopes import SCOPES
 def test_create_client_and_secret(db, config):
     new_client, secret = ClientDetail.create_client_and_secret(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
     )
 
     assert new_client.hashed_secret is not None
     assert (
         hash_with_salt(
-            secret.encode(config.security.ENCODING),
-            new_client.salt.encode(config.security.ENCODING),
+            secret.encode(config.security.encoding),
+            new_client.salt.encode(config.security.encoding),
         )
         == new_client.hashed_secret
     )
@@ -42,7 +42,7 @@ def test_get_client_root_client(db, config):
         scopes=SCOPES,
     )
     assert client
-    assert client.id == config.security.OAUTH_ROOT_CLIENT_ID
+    assert client.id == config.security.oauth_root_client_id
     assert client.scopes == SCOPES
 
 
@@ -55,8 +55,8 @@ def test_get_client_root_client_no_scopes(db, config):
 def test_credentials_valid(db, config):
     new_client, secret = ClientDetail.create_client_and_secret(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
         scopes=SCOPES,
     )
 
@@ -66,6 +66,6 @@ def test_credentials_valid(db, config):
 
 def test_get_root_client_detail_no_root_client_hash(config):
     test_config = deepcopy(config)
-    test_config.security.OAUTH_ROOT_CLIENT_SECRET_HASH = None
+    test_config.security.oauth_root_client_secret_hash = None
     with pytest.raises(ValueError):
         _get_root_client_detail(test_config, SCOPES)

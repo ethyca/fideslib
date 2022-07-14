@@ -55,7 +55,6 @@ pylint:
 
 pytest:
 	@docker-compose up -d
-	@sleep 2
 	pytest
 	@docker-compose down
 

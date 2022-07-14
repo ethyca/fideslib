@@ -163,8 +163,8 @@ def test_delete_self(client, db, config):
 
     client_detail, _ = ClientDetail.create_client_and_secret(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
         scopes=[USER_DELETE],
         user_id=user.id,
     )
@@ -176,7 +176,7 @@ def test_delete_self(client, db, config):
         JWE_PAYLOAD_CLIENT_ID: client_detail.id,
         JWE_ISSUED_AT: datetime.now().isoformat(),
     }
-    jwe = generate_jwe(json.dumps(payload), config.security.APP_ENCRYPTION_KEY)
+    jwe = generate_jwe(json.dumps(payload), config.security.app_encryption_key)
     auth_header = {"Authorization": "Bearer " + jwe}
 
     response = client.delete(f"{USERS}/{user.id}", headers=auth_header)
@@ -211,8 +211,8 @@ def test_delete_user_as_root(client, db, user, config):
 
     user_client, _ = ClientDetail.create_client_and_secret(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
         scopes=[USER_DELETE],
         user_id=other_user.id,
     )
@@ -231,7 +231,7 @@ def test_delete_user_as_root(client, db, user, config):
         JWE_PAYLOAD_CLIENT_ID: user.client.id,
         JWE_ISSUED_AT: datetime.now().isoformat(),
     }
-    jwe = generate_jwe(json.dumps(payload), config.security.APP_ENCRYPTION_KEY)
+    jwe = generate_jwe(json.dumps(payload), config.security.app_encryption_key)
     auth_header = {"Authorization": "Bearer " + jwe}
 
     response = client.delete(f"{USERS}/{other_user.id}", headers=auth_header)
@@ -419,7 +419,7 @@ def test_login_creates_client(db, user, client, config):
     assert user.client is not None
     assert "token_data" in list(response.json().keys())
     token = response.json()["token_data"]["access_token"]
-    token_data = json.loads(extract_payload(token, config.security.APP_ENCRYPTION_KEY))
+    token_data = json.loads(extract_payload(token, config.security.app_encryption_key))
     assert token_data["client-id"] == user.client.id
     assert "user_data" in list(response.json().keys())
     assert response.json()["user_data"]["id"] == user.id
@@ -454,7 +454,7 @@ def test_login_uses_existing_client(db, user, client, config):
     assert user.client is not None
     assert "token_data" in list(response.json().keys())
     token = response.json()["token_data"]["access_token"]
-    token_data = json.loads(extract_payload(token, config.security.APP_ENCRYPTION_KEY))
+    token_data = json.loads(extract_payload(token, config.security.app_encryption_key))
     assert token_data["client-id"] == existing_client_id
     assert token_data["scopes"] == [
         PRIVACY_REQUEST_READ
