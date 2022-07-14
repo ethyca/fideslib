@@ -160,7 +160,7 @@ class SecuritySettings(FidesSettings):
 
         salt = generate_salt()
         hashed_client_id = hash_with_salt(value.encode(encoding), salt.encode(encoding))
-        values["OAUTH_ROOT_CLIENT_SECRET_HASH"] = (hashed_client_id, salt.encode(encoding))  # type: ignore
+        values["oauth_root_client_secret_hash"] = (hashed_client_id, salt.encode(encoding))  # type: ignore
         return values
 
     class Config:
