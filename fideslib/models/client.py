@@ -93,7 +93,7 @@ class ClientDetail(Base):
         scopes: list[str] | None = None,
     ) -> ClientDetail | None:
         """Fetch a database record via a client_id"""
-        if object_id == config.security.OAUTH_ROOT_CLIENT_ID:
+        if object_id == config.security.oauth_root_client_id:
             return _get_root_client_detail(config, scopes)
         return super().get(db, object_id=object_id)
 
@@ -122,19 +122,19 @@ def _get_root_client_detail(
     scopes: list[str] | None,
     encoding: str = "UTF-8",
 ) -> ClientDetail | None:
-    if not config.security.OAUTH_ROOT_CLIENT_SECRET_HASH:
+    if not config.security.oauth_root_client_secret_hash:
         raise ValueError("A root client hash is required")
 
     if scopes:
         return ClientDetail(
-            id=config.security.OAUTH_ROOT_CLIENT_ID,
-            hashed_secret=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[0],
-            salt=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[1].decode(encoding),
+            id=config.security.oauth_root_client_id,
+            hashed_secret=config.security.oauth_root_client_secret_hash[0],
+            salt=config.security.oauth_root_client_secret_hash[1].decode(encoding),
             scopes=scopes,
         )
 
     return ClientDetail(
-        id=config.security.OAUTH_ROOT_CLIENT_ID,
-        hashed_secret=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[0],
-        salt=config.security.OAUTH_ROOT_CLIENT_SECRET_HASH[1].decode(encoding),
+        id=config.security.oauth_root_client_id,
+        hashed_secret=config.security.oauth_root_client_secret_hash[0],
+        salt=config.security.oauth_root_client_secret_hash[1].decode(encoding),
     )

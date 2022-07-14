@@ -28,7 +28,7 @@ def test_config_app_encryption_key_validation() -> None:
         clear=True,
     ):
         config = get_config()
-        assert config.security.APP_ENCRYPTION_KEY == app_encryption_key
+        assert config.security.app_encryption_key == app_encryption_key
 
 
 @pytest.mark.parametrize(
@@ -64,24 +64,24 @@ def config_dict(fides_toml_path):
 def test_config_from_path() -> None:
     """Test reading config using the FIDESOPS__CONFIG_PATH option."""
     config = get_config()
-    assert config.database.SERVER == "testserver"
-    assert config.security.APP_ENCRYPTION_KEY == "atestencryptionkeythatisvalidlen"
+    assert config.database.server == "testserver"
+    assert config.security.app_encryption_key == "atestencryptionkeythatisvalidlen"
 
 
 def test_database_settings_sqlalchemy_database_uri_str(config_dict):
     expected = "postgresql://someuri:216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a@db:5432/test"
-    config_dict["database"]["SQLALCHEMY_DATABASE_URI"] = expected
+    config_dict["database"]["sqlalchemy_database_uri"] = expected
     settings = DatabaseSettings.parse_obj(config_dict["database"])
 
-    assert settings.SQLALCHEMY_DATABASE_URI == expected
+    assert settings.sqlalchemy_database_uri == expected
 
 
 def test_database_settings_sqlalchemy_test_database_uri_str(config_dict):
     expected = "postgresql://someuri:216f4b49bea5da4f84f05288258471852c3e325cd336821097e1e65ff92b528a@db:5432/test"
-    config_dict["database"]["SQLALCHEMY_TEST_DATABASE_URI"] = expected
+    config_dict["database"]["sqlalchemy_test_database_uri"] = expected
     settings = DatabaseSettings.parse_obj(config_dict["database"])
 
-    assert settings.SQLALCHEMY_TEST_DATABASE_URI == expected
+    assert settings.sqlalchemy_test_database_uri == expected
 
 
 @pytest.mark.parametrize(
@@ -101,28 +101,28 @@ def test_missing_config_file():
 
 def test_security_cors_str(config_dict):
     expected = "http://localhost.com"
-    config_dict["security"]["CORS_ORIGINS"] = expected
+    config_dict["security"]["cors_origins"] = expected
     settings = SecuritySettings.parse_obj(config_dict["security"])
 
-    assert settings.CORS_ORIGINS[0] == expected
+    assert settings.cors_origins[0] == expected
 
 
 def test_security_invalid_cors(config_dict):
-    config_dict["security"]["CORS_ORIGINS"] = 1
+    config_dict["security"]["cors_origins"] = 1
 
     with pytest.raises(ValueError):
         SecuritySettings.parse_obj(config_dict["security"])
 
 
 def test_security_invalid_app_encryption_key(config_dict):
-    config_dict["security"]["APP_ENCRYPTION_KEY"] = "a"
+    config_dict["security"]["app_encryption_key"] = "a"
 
     with pytest.raises(ValueError):
         SecuritySettings.parse_obj(config_dict["security"])
 
 
 def test_security_missing_oauth_root_client_secret(config_dict):
-    del config_dict["security"]["OAUTH_ROOT_CLIENT_SECRET"]
+    del config_dict["security"]["oauth_root_client_secret"]
 
     with pytest.raises(MissingConfig):
         SecuritySettings.parse_obj(config_dict["security"])
@@ -151,10 +151,10 @@ def test_security_missing_oauth_root_client_secret(config_dict):
     ],
 )
 def tests_cors_origins(cors_origins, expected, config_dict):
-    config_dict["security"]["CORS_ORIGINS"] = cors_origins
+    config_dict["security"]["cors_origins"] = cors_origins
     settings = SecuritySettings.parse_obj(config_dict["security"])
 
-    assert settings.CORS_ORIGINS == expected
+    assert settings.cors_origins == expected
 
 
 @pytest.mark.parametrize(
@@ -167,6 +167,6 @@ def tests_cors_origins(cors_origins, expected, config_dict):
     ],
 )
 def test_cors_origins_invalid(url, config_dict):
-    config_dict["security"]["CORS_ORIGINS"] = url
+    config_dict["security"]["cors_origins"] = url
     with pytest.raises(ValueError):
         SecuritySettings.parse_obj(config_dict["security"])

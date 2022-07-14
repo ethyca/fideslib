@@ -43,7 +43,7 @@ def verify_oauth_client(
     Raises a 403 forbidden error if not.
     """
     token_data = json.loads(
-        extract_payload(authorization, config.security.APP_ENCRYPTION_KEY)
+        extract_payload(authorization, config.security.app_encryption_key)
     )
 
     issued_at = token_data.get(JWE_ISSUED_AT, None)
@@ -52,7 +52,7 @@ def verify_oauth_client(
 
     if is_token_expired(
         datetime.fromisoformat(issued_at),
-        config.security.OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES,
+        config.security.oauth_access_token_expire_minutes,
     ):
         raise AuthorizationError(detail="Not Authorized for this action")
 
