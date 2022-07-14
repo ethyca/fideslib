@@ -43,17 +43,17 @@ class FidesSettings(BaseSettings):
 class DatabaseSettings(FidesSettings):
     """Configuration settings for Postgres."""
 
-    SERVER: str
-    USER: str
-    PASSWORD: str
-    DB: str = "test"
-    PORT: str = "5432"
-    TEST_DB: str = "test"
+    server: str
+    user: str
+    password: str
+    db: str = "test"
+    port: str = "5432"
+    test_db: str = "test"
 
-    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
-    SQLALCHEMY_TEST_DATABASE_URI: Optional[PostgresDsn] = None
+    sqlalchemy_database_uri: Optional[PostgresDsn] = None
+    sqlalchemy_test_database_uri: Optional[PostgresDsn] = None
 
-    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
+    @validator("sqlalchemy_database_uri", pre=True)
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, str]) -> str:
         """Join DB connection credentials into a connection string"""
@@ -61,14 +61,14 @@ class DatabaseSettings(FidesSettings):
             return v
         return PostgresDsn.build(
             scheme="postgresql",
-            user=values["USER"],
-            password=values["PASSWORD"],
-            host=values["SERVER"],
-            port=values.get("PORT"),
-            path=f"/{values.get('DB') or ''}",
+            user=values["user"],
+            password=values["password"],
+            host=values["server"],
+            port=values.get("port"),
+            path=f"/{values.get('db') or ''}",
         )
 
-    @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)
+    @validator("sqlalchemy_test_database_uri", pre=True)
     @classmethod
     def assemble_test_db_connection(
         cls, v: Optional[str], values: Dict[str, str]
@@ -78,11 +78,11 @@ class DatabaseSettings(FidesSettings):
             return v
         return PostgresDsn.build(
             scheme="postgresql",
-            user=values["USER"],
-            password=values["PASSWORD"],
-            host=values["SERVER"],
-            port=values["PORT"],
-            path=f"/{values.get('TEST_DB') or ''}",
+            user=values["user"],
+            password=values["password"],
+            host=values["server"],
+            port=values["port"],
+            path=f"/{values.get('test_db') or ''}",
         )
 
     class Config:
@@ -92,26 +92,26 @@ class DatabaseSettings(FidesSettings):
 class SecuritySettings(FidesSettings):
     """Configuration settings for Security variables."""
 
-    AES_ENCRYPTION_KEY_LENGTH: int = 16
-    AES_GCM_NONCE_LENGTH: int = 12
-    APP_ENCRYPTION_KEY: str
-    DRP_JWT_SECRET: str
+    aes_encryption_key_length: int = 16
+    aes_gcm_nonce_length: int = 12
+    app_encryption_key: str
+    drp_jwt_secret: str
 
-    @validator("APP_ENCRYPTION_KEY")
+    @validator("app_encryption_key")
     @classmethod
     def validate_encryption_key_length(
         cls, v: Optional[str], values: Dict[str, str]
     ) -> Optional[str]:
         """Validate the encryption key is exactly 32 characters"""
-        if v is None or len(v.encode(values.get("ENCODING", "UTF-8"))) != 32:
+        if v is None or len(v.encode(values.get("encoding", "UTF-8"))) != 32:
             raise ValueError(
                 "APP_ENCRYPTION_KEY value must be exactly 32 characters long"
             )
         return v
 
-    CORS_ORIGINS: List[str] = []
+    cors_origins: list[str] = []
 
-    @validator("CORS_ORIGINS", pre=True)
+    @validator("cors_origins", pre=True)
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         """Return a list of valid origins for CORS requests"""
@@ -136,12 +136,12 @@ class SecuritySettings(FidesSettings):
     ENCODING: str = "UTF-8"
 
     # OAuth
-    OAUTH_ROOT_CLIENT_ID: str
-    OAUTH_ROOT_CLIENT_SECRET: str
-    OAUTH_ROOT_CLIENT_SECRET_HASH: Optional[Tuple]
-    OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    OAUTH_CLIENT_ID_LENGTH_BYTES = 16
-    OAUTH_CLIENT_SECRET_LENGTH_BYTES = 16
+    oauth_root_client_id: str
+    oauth_root_client_secret: str
+    oauth_root_client_secret_hash: Optional[Tuple]
+    oauth_access_token_expire_minutes: int = 60 * 24 * 8
+    oauth_client_id_length_bytes = 16
+    oauth_client_secret_length_bytes = 16
 
     @root_validator(pre=True)
     @classmethod
@@ -151,17 +151,17 @@ class SecuritySettings(FidesSettings):
         This is hashed as it is not wise to return a plaintext for of the
         root credential anywhere in the system.
         """
-        value = values.get("OAUTH_ROOT_CLIENT_SECRET")
+        value = values.get("oauth_root_client_secret")
         if not value:
             raise MissingConfig(
-                "OAUTH_ROOT_CLIENT_SECRET is required", SecuritySettings
+                "oauth_root_client_secret is required", SecuritySettings
             )
 
-        encoding = values.get("ENCODING", "UTF-8")
+        encoding = values.get("encoding", "UTF-8")
 
         salt = bcrypt.gensalt()
         hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
-        values["OAUTH_ROOT_CLIENT_SECRET_HASH"] = (hashed_client_id, salt)  # type: ignore
+        values["oauth_root_client_secret_hash"] = (hashed_client_id, salt)  # type: ignore
         return values
 
     class Config:
