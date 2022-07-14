@@ -45,7 +45,7 @@ def db(config):
     # Create the test DB engine
     assert config.is_test_mode
     engine = get_db_engine(
-        database_uri=config.database.SQLALCHEMY_DATABASE_URI,
+        database_uri=config.database.sqlalchemy_database_uri,
     )
 
     if not database_exists(engine.url):
@@ -108,7 +108,7 @@ def auth_header(request, oauth_client, config):
         JWE_PAYLOAD_CLIENT_ID: client_id,
         JWE_ISSUED_AT: datetime.now().isoformat(),
     }
-    jwe = generate_jwe(json.dumps(payload), config.security.APP_ENCRYPTION_KEY)
+    jwe = generate_jwe(json.dumps(payload), config.security.app_encryption_key)
 
     return {"Authorization": "Bearer " + jwe}
 

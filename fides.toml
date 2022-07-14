@@ -1,14 +1,19 @@
 [database]
-SERVER="localhost"
-USER="postgres"
-PASSWORD="postgres"
-DB="test"
-TEST_DB="test"
+server = "localhost"
+user = "postgres"
+password = "postgres"
+db = "test"
+test_db = "test"
 
 [security]
-APP_ENCRYPTION_KEY="OLMkv91j8DHiDAULnK5Lxx3kSCov30b3"
-CORS_ORIGINS=["http://localhost", "http://localhost:8080", "http://localhost:3000", "http://localhost:3001"]
-ENCODING="UTF-8"
-OAUTH_ROOT_CLIENT_ID="fidesadmin"
-OAUTH_ROOT_CLIENT_SECRET="fidesadminsecret"
-DRP_JWT_SECRET="secret"
+app_encryption_key = "OLMkv91j8DHiDAULnK5Lxx3kSCov30b3"
+cors_origins = [
+    "http://localhost",
+    "http://localhost:8080",
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+encoding = "UTF-8"
+oauth_root_client_id = "fidesadmin"
+oauth_root_client_secret = "fidesadminsecret"
+drp_jwt_secret = "secret"

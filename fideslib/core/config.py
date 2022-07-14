@@ -109,7 +109,7 @@ class SecuritySettings(FidesSettings):
             )
         return v
 
-    cors_origins: list[str] = []
+    cors_origins: List[str] = []
 
     @validator("cors_origins", pre=True)
     @classmethod

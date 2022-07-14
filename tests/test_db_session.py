@@ -11,14 +11,14 @@ from fideslib.exceptions import MissingConfig
 @pytest.fixture
 def config_no_database_uri(config):
     new_config = deepcopy(config)
-    new_config.database.SQLALCHEMY_DATABASE_URI = None
+    new_config.database.sqlalchemy_database_uri = None
     yield new_config
 
 
 @pytest.fixture
 def config_no_test(config):
     new_config = deepcopy(config)
-    new_config.database.SQLALCHEMY_DATABASE_URI = (
+    new_config.database.sqlalchemy_database_uri = (
         "postgresql://postgres:postgres@localhost:5432/prod"
     )
     new_config.is_test_mode = False

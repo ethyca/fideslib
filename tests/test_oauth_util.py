@@ -54,7 +54,7 @@ def test_verify_oauth_client_no_issued_at(db, config, user):
     }
     token = generate_jwe(
         json.dumps(payload),
-        config.security.APP_ENCRYPTION_KEY,
+        config.security.app_encryption_key,
     )
     with pytest.raises(AuthorizationError):
         verify_oauth_client(
@@ -75,7 +75,7 @@ def test_verify_oauth_client_expired(db, config, user):
     }
     token = generate_jwe(
         json.dumps(payload),
-        config.security.APP_ENCRYPTION_KEY,
+        config.security.app_encryption_key,
     )
     with pytest.raises(AuthorizationError):
         verify_oauth_client(
@@ -96,7 +96,7 @@ def test_verify_oauth_client_no_client_id(db, config):
     }
     token = generate_jwe(
         json.dumps(payload),
-        config.security.APP_ENCRYPTION_KEY,
+        config.security.app_encryption_key,
     )
     with pytest.raises(AuthorizationError):
         verify_oauth_client(
@@ -117,7 +117,7 @@ def test_verify_oauth_client_no_client(db, config, user):
     }
     token = generate_jwe(
         json.dumps(payload),
-        config.security.APP_ENCRYPTION_KEY,
+        config.security.app_encryption_key,
     )
     user.client.delete(db)
     assert user.client is None
@@ -134,7 +134,7 @@ def test_verify_oauth_client_wrong_security_scope(db, config, user):
     }
     token = generate_jwe(
         json.dumps(payload),
-        config.security.APP_ENCRYPTION_KEY,
+        config.security.app_encryption_key,
     )
     with pytest.raises(AuthorizationError):
         verify_oauth_client(SecurityScopes([USER_READ]), token, db=db, config=config)
@@ -150,7 +150,7 @@ def test_verify_oauth_client_wrong_client_scope(db, config, user):
     }
     token = generate_jwe(
         json.dumps(payload),
-        config.security.APP_ENCRYPTION_KEY,
+        config.security.app_encryption_key,
     )
     user.client.scopes = [USER_DELETE]
     with pytest.raises(AuthorizationError):

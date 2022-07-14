@@ -161,13 +161,13 @@ def user_login(
 
     client: ClientDetail = perform_login(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
         user,
     )
 
     logger.info("Creating login access token")
-    access_code = client.create_access_code_jwe(config.security.APP_ENCRYPTION_KEY)
+    access_code = client.create_access_code_jwe(config.security.app_encryption_key)
     return UserLoginResponse(
         user_data=user,
         token_data=AccessToken(access_token=access_code),
