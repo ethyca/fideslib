@@ -1,10 +1,8 @@
-import hashlib
 import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
-import bcrypt
 import tomli
 import validators
 from pydantic import (
@@ -17,6 +15,7 @@ from pydantic import (
 )
 from pydantic.env_settings import SettingsSourceCallable
 
+from fideslib.cryptography.cryptographic_util import generate_salt, hash_with_salt
 from fideslib.exceptions import MissingConfig
 
 logger = logging.getLogger(__name__)
@@ -159,9 +158,9 @@ class SecuritySettings(FidesSettings):
 
         encoding = values.get("encoding", "UTF-8")
 
-        salt = bcrypt.gensalt()
-        hashed_client_id = hashlib.sha512(value.encode(encoding) + salt).hexdigest()
-        values["oauth_root_client_secret_hash"] = (hashed_client_id, salt)  # type: ignore
+        salt = generate_salt()
+        hashed_client_id = hash_with_salt(value.encode(encoding), salt.encode(encoding))
+        values["oauth_root_client_secret_hash"] = (hashed_client_id, salt.encode(encoding))  # type: ignore
         return values
 
     class Config:
