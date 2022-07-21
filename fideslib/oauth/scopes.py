@@ -146,6 +146,7 @@ SCOPE_DOCS = {
     USER_UPDATE: "Update users",
     USER_DELETE: "Remove users",
     USER_READ: "View users",
+    USER_PASSWORD_RESET: "Update user password",
     USER_PERMISSION_CREATE: "Create user permissions",
     USER_PERMISSION_UPDATE: "Update user permissions",
     USER_PERMISSION_READ: "View user permissions",
