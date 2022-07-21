@@ -132,7 +132,7 @@ class SecuritySettings(FidesSettings):
             return v
         raise ValueError(v)
 
-    ENCODING: str = "UTF-8"
+    encoding: str = "UTF-8"
 
     # OAuth
     oauth_root_client_id: str
