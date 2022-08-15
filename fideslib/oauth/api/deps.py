@@ -39,7 +39,7 @@ def oauth2_scheme() -> OAuth2ClientCredentialsBearer:
 
     This should be overridden by the installing package.
     """
-    return OAuth2ClientCredentialsBearer(tokenUrl=TOKEN)
+    return OAuth2ClientCredentialsBearer(tokenUrl=f"/api/v1{TOKEN}")
 
 
 def verify_oauth_client(
