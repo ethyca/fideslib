@@ -8,7 +8,7 @@ from fideslib.core.config import FidesConfig
 from fideslib.core.config import get_config as core_get_config
 from fideslib.db.session import get_db_session
 from fideslib.models.client import ClientDetail
-from fideslib.oauth.api.urn_registry import TOKEN
+from fideslib.oauth.api.urn_registry import TOKEN, V1_URL_PREFIX
 from fideslib.oauth.oauth_util import verify_oauth_client as verify
 from fideslib.oauth.schemas.oauth import OAuth2ClientCredentialsBearer
 
@@ -39,7 +39,7 @@ def oauth2_scheme() -> OAuth2ClientCredentialsBearer:
 
     This should be overridden by the installing package.
     """
-    return OAuth2ClientCredentialsBearer(tokenUrl=f"/api/v1{TOKEN}")
+    return OAuth2ClientCredentialsBearer(tokenUrl=f"{V1_URL_PREFIX}{TOKEN}")
 
 
 def verify_oauth_client(
