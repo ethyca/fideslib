@@ -1,3 +1,6 @@
+# Prefix
+V1_URL_PREFIX = "/api/v1"
+
 # Login URLs
 LOGIN = "/login"
 
