@@ -33,7 +33,6 @@ from fideslib.oauth.schemas.user import (
 )
 from fideslib.oauth.scopes import (
     PRIVACY_REQUEST_READ,
-    SCOPES,
     USER_CREATE,
     USER_DELETE,
     USER_READ,
@@ -176,7 +175,6 @@ def user_login(
             db,
             object_id=config.security.oauth_root_client_id,
             config=config,
-            scopes=SCOPES,
         )
 
         if not client_check:
