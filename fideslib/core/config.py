@@ -95,6 +95,8 @@ class SecuritySettings(FidesSettings):
     aes_gcm_nonce_length: int = 12
     app_encryption_key: str
     drp_jwt_secret: str
+    root_username: Optional[str] = None
+    root_password: Optional[str] = None
 
     @validator("app_encryption_key")
     @classmethod

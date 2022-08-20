@@ -33,6 +33,7 @@ from fideslib.oauth.schemas.user import (
 )
 from fideslib.oauth.scopes import (
     PRIVACY_REQUEST_READ,
+    SCOPES,
     USER_CREATE,
     USER_DELETE,
     USER_READ,
@@ -49,8 +50,24 @@ router = APIRouter()
     status_code=HTTP_201_CREATED,
     response_model=UserCreateResponse,
 )
-def create_user(*, db: Session = Depends(get_db), user_data: UserCreate) -> FidesUser:
+def create_user(
+    *,
+    db: Session = Depends(get_db),
+    user_data: UserCreate,
+    config: FidesConfig = Depends(get_config),
+) -> FidesUser:
     """Create a user given a username and password."""
+
+    # The root user is not stored in the database so make sure here that the user name
+    # is not the same as the root user name.
+    if (
+        config.security.root_username
+        and config.security.root_username == user_data.username
+    ):
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST, detail="Username already exists."
+        )
+
     user = FidesUser.get_by(db, field="username", value=user_data.username)
 
     if user:
@@ -147,24 +164,58 @@ def user_login(
 ) -> UserLoginResponse:
     """Login the user by creating a client if it doesn't exist, and have that client
     generate a token."""
-    user: Optional[FidesUser] = FidesUser.get_by(
-        db, field="username", value=user_data.username
-    )
-
-    if not user:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No user found.")
-
-    if not user.credentials_valid(user_data.password):
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Incorrect user name or password."
+    user: FidesUser
+    client: ClientDetail
+    if (
+        config.security.root_username
+        and config.security.root_password
+        and config.security.root_username == user_data.username
+        and config.security.root_password == user_data.password
+    ):
+        client_check = ClientDetail.get(
+            db,
+            object_id=config.security.oauth_root_client_id,
+            config=config,
+            scopes=SCOPES,
         )
 
-    client: ClientDetail = perform_login(
-        db,
-        config.security.oauth_client_id_length_bytes,
-        config.security.oauth_client_secret_length_bytes,
-        user,
-    )
+        if not client_check:
+            raise HTTPException(
+                status_code=HTTP_404_NOT_FOUND, detail="No root client found."
+            )
+
+        # We have already checked for None but mypy still complains. This prevents mypy
+        # from complaining.
+        client = client_check
+        user = FidesUser(
+            id=config.security.oauth_root_client_id,
+            username=config.security.root_username,
+            created_at=datetime.utcnow(),
+        )
+    else:
+        user_check: Optional[FidesUser] = FidesUser.get_by(
+            db, field="username", value=user_data.username
+        )
+
+        if not user_check:
+            raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No user found.")
+
+        if not user_check.credentials_valid(user_data.password):
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN,
+                detail="Incorrect user name or password.",
+            )
+
+        # We have already checked for None but mypy still complains. This prevents mypy
+        # from complaining.
+        user = user_check
+
+        client = perform_login(
+            db,
+            config.security.oauth_client_id_length_bytes,
+            config.security.oauth_client_secret_length_bytes,
+            user,
+        )
 
     logger.info("Creating login access token")
     access_code = client.create_access_code_jwe(config.security.app_encryption_key)
