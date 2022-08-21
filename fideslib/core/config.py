@@ -17,7 +17,6 @@ from pydantic.env_settings import SettingsSourceCallable
 
 from fideslib.cryptography.cryptographic_util import generate_salt, hash_with_salt
 from fideslib.exceptions import MissingConfig
-from fideslib.oauth.scopes import SCOPES
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +97,7 @@ class SecuritySettings(FidesSettings):
     drp_jwt_secret: str
     root_username: Optional[str] = None
     root_password: Optional[str] = None
-    root_user_scopes: Optional[List[str]] = SCOPES
+    root_user_scopes: Optional[List[str]] = None
 
     @validator("app_encryption_key")
     @classmethod
