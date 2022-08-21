@@ -468,6 +468,7 @@ def test_login_root_user(client):
     token = response.json()["token_data"]["access_token"]
     token_data = json.loads(extract_payload(token, config.security.app_encryption_key))
     assert token_data["client-id"] == config.security.oauth_root_client_id
+    assert token_data["scopes"] == config.security.root_user_scopes
     assert "user_data" in list(response.json().keys())
     assert response.json()["user_data"]["id"] == config.security.oauth_root_client_id
 
