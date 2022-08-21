@@ -163,7 +163,6 @@ def user_login(
 ) -> UserLoginResponse:
     """Login the user by creating a client if it doesn't exist, and have that client
     generate a token."""
-    print(config.security)
     user: FidesUser
     client: ClientDetail
     if (
