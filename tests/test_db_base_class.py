@@ -4,10 +4,9 @@ from unittest.mock import MagicMock
 
 import pytest
 from fideslang.validation import FidesValidationError  # type: ignore
-from fideslang.validation import OverrideNotSupported
 
 from fideslib.db.base_class import Base, get_key_from_data
-from fideslib.exceptions import KeyValidationError
+from fideslib.exceptions import KeyValidationError, OverrideNotSupported
 
 
 def test_get_key_from_data():
