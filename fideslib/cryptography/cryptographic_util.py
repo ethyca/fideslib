@@ -1,4 +1,3 @@
-import hashlib
 import secrets
 from base64 import b64decode, b64encode
 
@@ -8,7 +7,7 @@ import bcrypt
 def hash_with_salt(text: bytes, salt: bytes) -> str:
     """Hashes the text using SHA-512 with the provided salt and returns the hex string
     representation"""
-    return hashlib.sha512(text + salt).hexdigest()
+    return bcrypt.hashpw(text, salt).hex()
 
 
 def generate_secure_random_string(length: int) -> str:

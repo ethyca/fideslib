@@ -29,9 +29,9 @@ def get_db_engine(
     if database_uri is None and config is not None:
         # Don't override any database_uri explicitly passed in
         if config.is_test_mode:
-            database_uri = config.database.SQLALCHEMY_TEST_DATABASE_URI
+            database_uri = config.database.sqlalchemy_test_database_uri
         else:
-            database_uri = config.database.SQLALCHEMY_DATABASE_URI
+            database_uri = config.database.sqlalchemy_database_uri
     return create_engine(database_uri, pool_pre_ping=True)
 
 
@@ -42,7 +42,7 @@ def get_db_session(
     engine: Engine | None = None,
 ) -> sessionmaker:
     """Return a database SessionLocal."""
-    if not config.database.SQLALCHEMY_DATABASE_URI:
+    if not config.database.sqlalchemy_database_uri:
         raise MissingConfig("No database uri available in the config")
 
     return sessionmaker(

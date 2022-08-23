@@ -1,7 +1,9 @@
 # pylint: disable=duplicate-code, missing-function-docstring, too-many-locals
 
 import json
+import os
 from datetime import datetime
+from unittest.mock import patch
 
 import pytest
 from fastapi_pagination import Params
@@ -16,6 +18,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
+from fideslib.core.config import get_config
 from fideslib.cryptography.cryptographic_util import str_to_b64_str
 from fideslib.cryptography.schemas.jwt import (
     JWE_ISSUED_AT,
@@ -117,6 +120,26 @@ def test_create_user_username_exists(
     assert response.status_code == HTTP_400_BAD_REQUEST
 
 
+@patch.dict(
+    os.environ,
+    {
+        "FIDES__SECURITY__ROOT_USERNAME": "root_user",
+    },
+    clear=True,
+)
+@pytest.mark.parametrize("auth_header", [[USER_CREATE]], indirect=True)
+def test_create_user_username_matches_root(
+    client,
+    auth_header,
+) -> None:
+    body = {"username": "root_user", "password": str_to_b64_str("TestP@ssword9")}
+
+    response = client.post(USERS, headers=auth_header, json=body)
+    assert "detail" in response.json()
+    assert "Username already exists" in response.json()["detail"]
+    assert response.status_code == HTTP_400_BAD_REQUEST
+
+
 @pytest.mark.usefixtures("db")
 @pytest.mark.parametrize("auth_header", [[USER_DELETE]], indirect=True)
 def test_create_user_wrong_scope(client, auth_header):
@@ -163,8 +186,8 @@ def test_delete_self(client, db, config):
 
     client_detail, _ = ClientDetail.create_client_and_secret(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
         scopes=[USER_DELETE],
         user_id=user.id,
     )
@@ -176,7 +199,7 @@ def test_delete_self(client, db, config):
         JWE_PAYLOAD_CLIENT_ID: client_detail.id,
         JWE_ISSUED_AT: datetime.now().isoformat(),
     }
-    jwe = generate_jwe(json.dumps(payload), config.security.APP_ENCRYPTION_KEY)
+    jwe = generate_jwe(json.dumps(payload), config.security.app_encryption_key)
     auth_header = {"Authorization": "Bearer " + jwe}
 
     response = client.delete(f"{USERS}/{user.id}", headers=auth_header)
@@ -211,8 +234,8 @@ def test_delete_user_as_root(client, db, user, config):
 
     user_client, _ = ClientDetail.create_client_and_secret(
         db,
-        config.security.OAUTH_CLIENT_ID_LENGTH_BYTES,
-        config.security.OAUTH_CLIENT_SECRET_LENGTH_BYTES,
+        config.security.oauth_client_id_length_bytes,
+        config.security.oauth_client_secret_length_bytes,
         scopes=[USER_DELETE],
         user_id=other_user.id,
     )
@@ -231,7 +254,7 @@ def test_delete_user_as_root(client, db, user, config):
         JWE_PAYLOAD_CLIENT_ID: user.client.id,
         JWE_ISSUED_AT: datetime.now().isoformat(),
     }
-    jwe = generate_jwe(json.dumps(payload), config.security.APP_ENCRYPTION_KEY)
+    jwe = generate_jwe(json.dumps(payload), config.security.app_encryption_key)
     auth_header = {"Authorization": "Bearer " + jwe}
 
     response = client.delete(f"{USERS}/{other_user.id}", headers=auth_header)
@@ -413,16 +436,41 @@ def test_login_creates_client(db, user, client, config):
     }
     response = client.post(LOGIN, headers={}, json=body)
     db.refresh(user)
-    print(response.json())
 
     assert response.status_code == HTTP_200_OK
     assert user.client is not None
     assert "token_data" in list(response.json().keys())
     token = response.json()["token_data"]["access_token"]
-    token_data = json.loads(extract_payload(token, config.security.APP_ENCRYPTION_KEY))
+    token_data = json.loads(extract_payload(token, config.security.app_encryption_key))
     assert token_data["client-id"] == user.client.id
     assert "user_data" in list(response.json().keys())
     assert response.json()["user_data"]["id"] == user.id
+
+
+@patch.dict(
+    os.environ,
+    {
+        "FIDES__SECURITY__ROOT_USERNAME": "rootuser",
+        "FIDES__SECURITY__ROOT_PASSWORD": "Rootpassword!",
+    },
+    clear=True,
+)
+def test_login_root_user(client):
+    config = get_config()
+    body = {
+        "username": "rootuser",
+        "password": str_to_b64_str("Rootpassword!"),
+    }
+    response = client.post(LOGIN, headers={}, json=body)
+
+    assert response.status_code == HTTP_200_OK
+    assert "token_data" in list(response.json().keys())
+    token = response.json()["token_data"]["access_token"]
+    token_data = json.loads(extract_payload(token, config.security.app_encryption_key))
+    assert token_data["client-id"] == config.security.oauth_root_client_id
+    assert token_data["scopes"] == config.security.root_user_scopes
+    assert "user_data" in list(response.json().keys())
+    assert response.json()["user_data"]["id"] == config.security.oauth_root_client_id
 
 
 def test_login_updates_last_login_date(db, user, client):
@@ -454,7 +502,7 @@ def test_login_uses_existing_client(db, user, client, config):
     assert user.client is not None
     assert "token_data" in list(response.json().keys())
     token = response.json()["token_data"]["access_token"]
-    token_data = json.loads(extract_payload(token, config.security.APP_ENCRYPTION_KEY))
+    token_data = json.loads(extract_payload(token, config.security.app_encryption_key))
     assert token_data["client-id"] == existing_client_id
     assert token_data["scopes"] == [
         PRIVACY_REQUEST_READ

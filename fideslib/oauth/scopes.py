@@ -1,5 +1,7 @@
+AUTHORIZE = "authorize"
 CONFIG = "config"
 CONNECTION = "connection"
+CONNECTION_TYPE = "connection_type"
 CLIENT = "client"
 CREATE = "create"
 CREATE_OR_UPDATE = "create_or_update"
@@ -7,15 +9,20 @@ DATASET = "dataset"
 DELETE = "delete"
 ENCRYPTION = "encryption"
 EXEC = "exec"
+FIDES_TAXONOMY = "fides_taxonomy"
+ORGANIZATION = "organization"
 POLICY = "policy"
 PRIVACY_REQUEST = "privacy-request"
 READ = "read"
 RESUME = "resume"
 REVIEW = "review"
+RESET_PASSWORD = "reset-password"
 RULE = "rule"
 SAAS_CONFIG = "saas_config"
 SCOPE = "scope"
 STORAGE = "storage"
+SYSTEM = "system"
+TAXONOMY = "taxonomy"
 UPDATE = "update"
 USER = "user"
 USER_PERMISSION = "user-permission"
@@ -31,12 +38,21 @@ CLIENT_UPDATE = f"{CLIENT}:{UPDATE}"
 CONNECTION_CREATE_OR_UPDATE = f"{CONNECTION}:{CREATE_OR_UPDATE}"
 CONNECTION_DELETE = f"{CONNECTION}:{DELETE}"
 CONNECTION_READ = f"{CONNECTION}:{READ}"
+CONNECTION_AUTHORIZE = f"{CONNECTION}:{AUTHORIZE}"
+
+CONNECTION_TYPE_READ = f"{CONNECTION_TYPE}:{READ}"
 
 DATASET_CREATE_OR_UPDATE = f"{DATASET}:{CREATE_OR_UPDATE}"
 DATASET_DELETE = f"{DATASET}:{DELETE}"
 DATASET_READ = f"{DATASET}:{READ}"
 
 ENCRYPTION_EXEC = f"{ENCRYPTION}:{EXEC}"
+
+FIDES_TAXONOMY_UPDATE = f"{FIDES_TAXONOMY}:{UPDATE}"
+
+ORGANIZATION_CREATE = f"{ORGANIZATION}:{CREATE}"
+ORGANIZATION_UPDATE = f"{ORGANIZATION}:{UPDATE}"
+ORGANIZATION_DELETE = f"{ORGANIZATION}:{DELETE}"
 
 POLICY_CREATE_OR_UPDATE = f"{POLICY}:{CREATE_OR_UPDATE}"
 POLICY_DELETE = f"{POLICY}:{DELETE}"
@@ -61,9 +77,19 @@ STORAGE_CREATE_OR_UPDATE = f"{STORAGE}:{CREATE_OR_UPDATE}"
 STORAGE_DELETE = f"{STORAGE}:{DELETE}"
 STORAGE_READ = f"{STORAGE}:{READ}"
 
+SYSTEM_CREATE = f"{SYSTEM}:{CREATE}"
+SYSTEM_UPDATE = f"{SYSTEM}:{UPDATE}"
+SYSTEM_DELETE = f"{SYSTEM}:{DELETE}"
+
+TAXONOMY_CREATE = f"{TAXONOMY}:{CREATE}"
+TAXONOMY_UPDATE = f"{TAXONOMY}:{UPDATE}"
+TAXONOMY_DELETE = f"{TAXONOMY}:{DELETE}"
+
 USER_CREATE = f"{USER}:{CREATE}"
 USER_DELETE = f"{USER}:{DELETE}"
 USER_READ = f"{USER}:{READ}"
+USER_UPDATE = f"{USER}:{UPDATE}"
+USER_PASSWORD_RESET = f"{USER}:{RESET_PASSWORD}"
 
 USER_PERMISSION_CREATE = f"{USER_PERMISSION}:{CREATE}"
 USER_PERMISSION_UPDATE = f"{USER_PERMISSION}:{UPDATE}"
@@ -82,17 +108,24 @@ SCOPE_DOCS = {
     CONNECTION_CREATE_OR_UPDATE: "Create or modify connections",
     CONNECTION_DELETE: "Remove connections",
     CONNECTION_READ: "View connections",
+    CONNECTION_AUTHORIZE: "OAuth2 Authorization",
+    CONNECTION_TYPE_READ: "View types of connections",
     DATASET_CREATE_OR_UPDATE: "Create or modify datasets",
     DATASET_DELETE: "Delete datasets",
     DATASET_READ: "View datasets",
     ENCRYPTION_EXEC: "Encrypt data",
+    FIDES_TAXONOMY_UPDATE: "Update default fides taxonomy description",
+    ORGANIZATION_CREATE: "Create organization",
+    ORGANIZATION_DELETE: "Delete organization",
+    ORGANIZATION_UPDATE: "Update organization details",
     POLICY_CREATE_OR_UPDATE: "Create or modify policies",
     POLICY_DELETE: "Remove policies",
-    POLICY_READ: "View plicies",
+    POLICY_READ: "View policies",
     PRIVACY_REQUEST_CALLBACK_RESUME: "Restart paused privacy requests",
     PRIVACY_REQUEST_DELETE: "Remove privacy requests",
     PRIVACY_REQUEST_READ: "View privacy requests",
     PRIVACY_REQUEST_REVIEW: "Review privacy requests",
+    RESET_PASSWORD: "Reset user password",
     RULE_CREATE_OR_UPDATE: "Create or update rules",
     RULE_DELETE: "Remove rules",
     RULE_READ: "View rules",
@@ -103,9 +136,17 @@ SCOPE_DOCS = {
     STORAGE_CREATE_OR_UPDATE: "Create or update storage",
     STORAGE_DELETE: "Remove storage",
     STORAGE_READ: "View storage",
+    SYSTEM_CREATE: "Create systems",
+    SYSTEM_DELETE: "Delete systems",
+    SYSTEM_UPDATE: "Update systems",
+    TAXONOMY_CREATE: "Create local taxonomy",
+    TAXONOMY_DELETE: "Delete local taxonomy",
+    TAXONOMY_UPDATE: "Update local taxonomy",
     USER_CREATE: "Create users",
+    USER_UPDATE: "Update users",
     USER_DELETE: "Remove users",
     USER_READ: "View users",
+    USER_PASSWORD_RESET: "Update user password",
     USER_PERMISSION_CREATE: "Create user permissions",
     USER_PERMISSION_UPDATE: "Update user permissions",
     USER_PERMISSION_READ: "View user permissions",
