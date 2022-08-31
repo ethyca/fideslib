@@ -55,7 +55,12 @@ def create_user(
     user_data: UserCreate,
     config: FidesConfig = Depends(get_config),
 ) -> FidesUser:
-    """Create a user given a username and password."""
+    """
+    Create a user given a username and password.
+    If `password` is sent as a base64 encoded string, it will automatically be decoded
+    server-side before being encrypted and persisted.
+    If `password` is sent as a plaintext string, it will be encrypted and persisted as is.
+    """
 
     # The root user is not stored in the database so make sure here that the user name
     # is not the same as the root user name.
