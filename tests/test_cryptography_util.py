@@ -6,6 +6,7 @@ from fideslib.cryptography.cryptographic_util import (
     b64_str_to_bytes,
     b64_str_to_str,
     bytes_to_b64_str,
+    decode_password,
     generate_salt,
     generate_secure_random_string,
     hash_with_salt,
@@ -83,3 +84,14 @@ def test_str_to_b64_str() -> None:
     b64_string = "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbQ=="
     result = str_to_b64_str(orig_string)
     assert b64_string == result
+
+
+@pytest.mark.parametrize(
+    "password, expected",
+    [
+        ("Testpassword1!", "Testpassword1!"),
+        (str_to_b64_str("Testpassword1!"), "Testpassword1!"),
+    ],
+)
+def test_decode_password(password, expected):
+    assert decode_password(password) == expected

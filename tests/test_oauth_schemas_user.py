@@ -3,7 +3,7 @@
 import pytest
 
 from fideslib.cryptography.cryptographic_util import str_to_b64_str
-from fideslib.oauth.schemas.user import UserCreate
+from fideslib.oauth.schemas.user import UserCreate, UserLogin
 
 
 @pytest.mark.parametrize(
@@ -32,7 +32,38 @@ def test_user_create_user_name_with_spaces():
     with pytest.raises(ValueError):
         UserCreate(
             username="some user",
-            password="Testtest1!",
+            password=str_to_b64_str("Testtest1!"),
             first_name="test",
             last_name="test",
         )
+
+
+@pytest.mark.parametrize(
+    "password, expected",
+    [
+        ("Testpassword1!", "Testpassword1!"),
+        (str_to_b64_str("Testpassword1!"), "Testpassword1!"),
+    ],
+)
+def test_user_create(password, expected):
+    user = UserCreate(
+        username="immauser",
+        password=password,
+        first_name="imma",
+        last_name="user",
+    )
+
+    assert user.password == expected
+
+
+@pytest.mark.parametrize(
+    "password, expected",
+    [
+        ("Testpassword1!", "Testpassword1!"),
+        (str_to_b64_str("Testpassword1!"), "Testpassword1!"),
+    ],
+)
+def test_user_login(password, expected):
+    user = UserLogin(username="immauser", password=password)
+
+    assert user.password == expected

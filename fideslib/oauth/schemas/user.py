@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import validator
 
-from fideslib.cryptography.cryptographic_util import b64_str_to_str
+from fideslib.cryptography.cryptographic_util import decode_password
 from fideslib.oauth.schemas.oauth import AccessToken
 from fideslib.schemas.base_class import BaseSchema
 
@@ -36,7 +36,8 @@ class UserCreate(BaseSchema):
     @classmethod
     def validate_password(cls, password: str) -> str:
         """Add some password requirements"""
-        decoded_password = b64_str_to_str(password)
+        decoded_password = decode_password(password)
+
         if len(decoded_password) < 8:
             raise ValueError("Password must have at least eight characters.")
         if re.search("[0-9]", decoded_password) is None:
@@ -69,7 +70,7 @@ class UserLogin(BaseSchema):
     @classmethod
     def validate_password(cls, password: str) -> str:
         """Convert b64 encoded password to normal string"""
-        return b64_str_to_str(password)
+        return decode_password(password)
 
 
 class UserResponse(BaseSchema):
