@@ -1,7 +1,19 @@
 import secrets
 from base64 import b64decode, b64encode
+from binascii import Error
 
 import bcrypt
+
+
+def decode_password(password: str) -> str:
+    """Tries to decode the string as base64 encoded.
+
+    If not successful it is assumed to be unencoded and returned as it was sent.
+    """
+    try:
+        return b64_str_to_str(password)
+    except Error:
+        return password
 
 
 def hash_with_salt(text: bytes, salt: bytes) -> str:
