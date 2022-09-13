@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 from fastapi.security import SecurityScopes
-from jose import jwe
+from jose import exceptions, jwe
 from sqlalchemy.orm import Session
 
 from fideslib.core.config import FidesConfig
@@ -48,8 +48,8 @@ def verify_oauth_client(
 
     try:
         issued_at = token_data.get(JWE_ISSUED_AT, None)
-    except jose.exceptions.JWEParseError:
-        raise AuthorizationError(detail="Not Authorized for this action")
+    except exceptions.JWEParseError as exc:
+        raise AuthorizationError(detail="Not Authorized for this action") from exc
 
     if not issued_at:
         raise AuthorizationError(detail="Not Authorized for this action")
