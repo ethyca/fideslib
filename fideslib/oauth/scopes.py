@@ -24,8 +24,10 @@ STORAGE = "storage"
 SYSTEM = "system"
 TAXONOMY = "taxonomy"
 UPDATE = "update"
+UPLOAD_DATA = "upload_data"
 USER = "user"
 USER_PERMISSION = "user-permission"
+VIEW_DATA = "view_data"
 WEBHOOK = "webhook"
 
 CONFIG_READ = f"{CONFIG}:{READ}"
@@ -62,6 +64,8 @@ PRIVACY_REQUEST_CALLBACK_RESUME = f"{PRIVACY_REQUEST}:{RESUME}"  # User has perm
 PRIVACY_REQUEST_DELETE = f"{PRIVACY_REQUEST}:{DELETE}"
 PRIVACY_REQUEST_READ = f"{PRIVACY_REQUEST}:{READ}"
 PRIVACY_REQUEST_REVIEW = f"{PRIVACY_REQUEST}:{REVIEW}"
+PRIVACY_REQUEST_UPLOAD_DATA = f"{PRIVACY_REQUEST}:{UPLOAD_DATA}"
+PRIVACY_REQUEST_VIEW_DATA = f"{PRIVACY_REQUEST}:{VIEW_DATA}"
 
 RULE_CREATE_OR_UPDATE = f"{RULE}:{CREATE_OR_UPDATE}"
 RULE_DELETE = f"{RULE}:{DELETE}"
@@ -125,6 +129,8 @@ SCOPE_DOCS = {
     PRIVACY_REQUEST_DELETE: "Remove privacy requests",
     PRIVACY_REQUEST_READ: "View privacy requests",
     PRIVACY_REQUEST_REVIEW: "Review privacy requests",
+    PRIVACY_REQUEST_UPLOAD_DATA: "Manually upload data for the privacy request",
+    PRIVACY_REQUEST_VIEW_DATA: "View subject data related to the privacy request",
     RESET_PASSWORD: "Reset user password",
     RULE_CREATE_OR_UPDATE: "Create or update rules",
     RULE_DELETE: "Remove rules",

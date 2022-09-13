@@ -45,6 +45,16 @@ def test_is_token_expired(issued_at, token_duration_min, expected):
     assert is_token_expired(issued_at, token_duration_min) is expected
 
 
+def test_verify_oauth_malformed_oauth_client(db, config):
+    with pytest.raises(AuthorizationError):
+        verify_oauth_client(
+            SecurityScopes([USER_READ]),
+            authorization="invalid",
+            db=db,
+            config=config,
+        )
+
+
 def test_verify_oauth_client_no_issued_at(db, config, user):
     payload = {
         JWE_PAYLOAD_SCOPES: [USER_READ],
