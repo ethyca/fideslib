@@ -46,7 +46,11 @@ def verify_oauth_client(
         extract_payload(authorization, config.security.app_encryption_key)
     )
 
-    issued_at = token_data.get(JWE_ISSUED_AT, None)
+    try:
+        issued_at = token_data.get(JWE_ISSUED_AT, None)
+    except jose.exceptions.JWEParseError:
+        raise AuthorizationError(detail="Not Authorized for this action")
+
     if not issued_at:
         raise AuthorizationError(detail="Not Authorized for this action")
 
