@@ -49,7 +49,7 @@ def test_verify_oauth_malformed_oauth_client(db, config):
     with pytest.raises(AuthorizationError):
         verify_oauth_client(
             SecurityScopes([USER_READ]),
-            "invalid",
+            authorization="invalid",
             db=db,
             config=config,
         )

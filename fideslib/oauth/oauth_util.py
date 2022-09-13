@@ -42,15 +42,14 @@ def verify_oauth_client(
 
     Raises a 403 forbidden error if not.
     """
-    token_data = json.loads(
-        extract_payload(authorization, config.security.app_encryption_key)
-    )
-
     try:
-        issued_at = token_data.get(JWE_ISSUED_AT, None)
+        token_data = json.loads(
+            extract_payload(authorization, config.security.app_encryption_key)
+        )
     except exceptions.JWEParseError as exc:
         raise AuthorizationError(detail="Not Authorized for this action") from exc
 
+    issued_at = token_data.get(JWE_ISSUED_AT, None)
     if not issued_at:
         raise AuthorizationError(detail="Not Authorized for this action")
 
