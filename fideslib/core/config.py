@@ -247,26 +247,30 @@ def get_config(
     This will fail on the first encountered bad conf file.
     """
     try:
+        filenames_as_str = " or ".join([str(x) for x in file_names])
+        logger.info(
+            "Attempting to load application config from files: %s", filenames_as_str
+        )
         return class_name.parse_obj(load_toml(file_names))
     except (FileNotFoundError) as e:
-        if isinstance(file_names, list):
-            if len(file_names) == 1:
-                logger.warning("%s could not be loaded: %s", file_names[0], e)
-            else:
-                logger.warning(
-                    "%s could not be loaded: %s",
-                    " or ".join([str(x) for x in file_names]),
-                    e,
-                )
-        else:
-            logger.warning("%s could not be loaded: %s", file_names, e)
+        logger.warning(
+            "Application config could not be loaded from files: %s due to error: %s",
+            filenames_as_str,
+            e,
+        )
         # If no path is specified Pydantic will attempt to read settings from
         # the environment. Default values will still be used if the matching
         # environment variable is not set.
         try:
+            logger.info(
+                "Attempting to load application config from environment variables"
+            )
             return class_name()
         except ValidationError as exc:
-            logger.error("ValidationError: %s", exc)
+            logger.error(
+                "Application config could not be loaded from environment variables due to error: %s",
+                exc,
+            )
             # If FidesConfig is missing any required values Pydantic will throw
             # an ImportError. This means the config has not been correctly specified
             # so we can throw the missing config error.
