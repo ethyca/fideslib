@@ -94,7 +94,7 @@ class SecuritySettings(FidesSettings):
     aes_encryption_key_length: int = 16
     aes_gcm_nonce_length: int = 12
     app_encryption_key: str
-    drp_jwt_secret: str
+    drp_jwt_secret: Optional[str] = None
     root_username: Optional[str] = None
     root_password: Optional[str] = None
     root_user_scopes: Optional[List[str]] = None
