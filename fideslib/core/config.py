@@ -49,8 +49,8 @@ class DatabaseSettings(FidesSettings):
     port: str = "5432"
     test_db: str = "test"
 
-    sqlalchemy_database_uri: Optional[PostgresDsn] = None
-    sqlalchemy_test_database_uri: Optional[PostgresDsn] = None
+    sqlalchemy_database_uri: Optional[str] = None
+    sqlalchemy_test_database_uri: Optional[str] = None
 
     @validator("sqlalchemy_database_uri", pre=True)
     @classmethod
@@ -58,13 +58,14 @@ class DatabaseSettings(FidesSettings):
         """Join DB connection credentials into a connection string"""
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
+        return str(PostgresDsn.build(
             scheme="postgresql",
             user=values["user"],
             password=values["password"],
             host=values["server"],
             port=values.get("port"),
             path=f"/{values.get('db') or ''}",
+            )
         )
 
     @validator("sqlalchemy_test_database_uri", pre=True)
@@ -75,13 +76,14 @@ class DatabaseSettings(FidesSettings):
         """Join DB connection credentials into a connection string"""
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
+        return str(PostgresDsn.build(
             scheme="postgresql",
             user=values["user"],
             password=values["password"],
             host=values["server"],
             port=values["port"],
             path=f"/{values.get('test_db') or ''}",
+            )
         )
 
     class Config:
