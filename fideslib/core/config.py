@@ -58,13 +58,14 @@ class DatabaseSettings(FidesSettings):
         """Join DB connection credentials into a connection string"""
         if isinstance(v, str):
             return v
-        return str(PostgresDsn.build(
-            scheme="postgresql",
-            user=values["user"],
-            password=values["password"],
-            host=values["server"],
-            port=values.get("port"),
-            path=f"/{values.get('db') or ''}",
+        return str(
+            PostgresDsn.build(
+                scheme="postgresql",
+                user=values["user"],
+                password=values["password"],
+                host=values["server"],
+                port=values.get("port"),
+                path=f"/{values.get('db') or ''}",
             )
         )
 
@@ -76,13 +77,14 @@ class DatabaseSettings(FidesSettings):
         """Join DB connection credentials into a connection string"""
         if isinstance(v, str):
             return v
-        return str(PostgresDsn.build(
-            scheme="postgresql",
-            user=values["user"],
-            password=values["password"],
-            host=values["server"],
-            port=values["port"],
-            path=f"/{values.get('test_db') or ''}",
+        return str(
+            PostgresDsn.build(
+                scheme="postgresql",
+                user=values["user"],
+                password=values["password"],
+                host=values["server"],
+                port=values["port"],
+                path=f"/{values.get('test_db') or ''}",
             )
         )
 
