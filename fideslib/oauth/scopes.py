@@ -7,9 +7,11 @@ CREATE = "create"
 CREATE_OR_UPDATE = "create_or_update"
 DATASET = "dataset"
 DELETE = "delete"
+ENABLED = "enabled"
 ENCRYPTION = "encryption"
 EXEC = "exec"
 FIDES_TAXONOMY = "fides_taxonomy"
+FIDESPLUS = "fidesplus"
 ORGANIZATION = "organization"
 POLICY = "policy"
 PRIVACY_REQUEST = "privacy-request"
@@ -51,6 +53,8 @@ DATASET_READ = f"{DATASET}:{READ}"
 ENCRYPTION_EXEC = f"{ENCRYPTION}:{EXEC}"
 
 FIDES_TAXONOMY_UPDATE = f"{FIDES_TAXONOMY}:{UPDATE}"
+
+FIDESPLUS_ENABLED = f"{FIDESPLUS}:{ENABLED}"
 
 ORGANIZATION_CREATE = f"{ORGANIZATION}:{CREATE}"
 ORGANIZATION_UPDATE = f"{ORGANIZATION}:{UPDATE}"
@@ -119,6 +123,7 @@ SCOPE_DOCS = {
     DATASET_READ: "View datasets",
     ENCRYPTION_EXEC: "Encrypt data",
     FIDES_TAXONOMY_UPDATE: "Update default fides taxonomy description",
+    FIDESPLUS_ENABLED: "Submit requests to a fidesplus server",
     ORGANIZATION_CREATE: "Create organization",
     ORGANIZATION_DELETE: "Delete organization",
     ORGANIZATION_UPDATE: "Update organization details",

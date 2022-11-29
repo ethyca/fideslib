@@ -32,6 +32,7 @@ from fideslib.oauth.schemas.user import (
     UserResponse,
 )
 from fideslib.oauth.scopes import (
+    FIDESPLUS_ENABLED,
     PRIVACY_REQUEST_READ,
     USER_CREATE,
     USER_DELETE,
@@ -82,7 +83,14 @@ def create_user(
     user = FidesUser.create(db=db, data=user_data.dict())
     logger.info("Created user with id: '%s'.", user.id)
     FidesUserPermissions.create(
-        db=db, data={"user_id": user.id, "scopes": [PRIVACY_REQUEST_READ]}
+        db=db,
+        data={
+            "user_id": user.id,
+            "scopes": [
+                FIDESPLUS_ENABLED,
+                PRIVACY_REQUEST_READ,
+            ],
+        },
     )
     return user
 
